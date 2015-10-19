@@ -4,6 +4,7 @@
 # Author : Jean-Sébastien Beaulieu
 
 import tkinter as tk
+from tkinter import ttk
 from datetime import datetime
 
 
@@ -18,11 +19,6 @@ class ServerView(tk.Tk):
         self.resizable(width=False, height=False)
         self.title("**RTSTITLE** - Dedicated Multiplayer Server manager")
         self.main_window()
-
-        self.debug()
-
-    def debug(self):
-        self.server_event("test event")
 
     ############################################################################
     # Main window                                                              #
@@ -40,6 +36,7 @@ class ServerView(tk.Tk):
         button_stop = tk.Button(self.frame_infos, text="Stop", padx=10)
         button_stop.bind("<Button-1>", self.event_button_stop)
         button_stop.pack(pady=5)
+        ttk.Separator(self.frame_infos).pack(fill=tk.X, pady=20)
 
         # players list + chat
         self.frame_players = tk.Frame(self, width=400, padx=15, pady=15)
@@ -76,7 +73,7 @@ class ServerView(tk.Tk):
         scrollbar = tk.Scrollbar(frame)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.chatbg = tk.Text(frame, yscrollcommand=scrollbar.set,
-                              padx=5, pady=5, height=10, width=40,
+                              padx=5, pady=5, height=20, width=40,
                               state=tk.DISABLED, font=("Consolas", 10))
         self.chatbg.pack()
         return frame
@@ -100,7 +97,7 @@ class ServerView(tk.Tk):
         scrollbar = tk.Scrollbar(frame)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.log = tk.Text(frame, yscrollcommand=scrollbar.set,
-                           state=tk.DISABLED, padx=5, pady=5, height=20,
+                           state=tk.DISABLED, padx=5, pady=5, height=30,
                            width=40, font=("Consolas", 10))
         self.log.pack(fill=tk.BOTH)
         return frame
@@ -133,6 +130,6 @@ class ServerView(tk.Tk):
     def server_event(self, event):
         """Creates a new entry in the server log."""
         self.log.config(state=tk.NORMAL)
-        self.log.insert(tk.END, str(datetime.now().time()) + event)
+        self.log.insert(tk.END, str(datetime.now().time()) + " - " + event + "\n")
         self.log.config(state=tk.DISABLED)
-        self.chatbg.see(tk.END)
+        self.log.see(tk.END)
