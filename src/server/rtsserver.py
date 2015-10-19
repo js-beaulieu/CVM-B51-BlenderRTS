@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
-# rts-server.py
-# Modèle principal pour le serveur
-# Auteur : Jean-Sébastien Beaulieu
+# rtsserver.py
+# Main model for the server
+# Author : Jean-Sébastien Beaulieu
 
 import Pyro4
 from random import randint
 import socket
+from serverview import ServerView
 
 
 class GameData():
+
+    """Used by **RTSTITLE** server to manage user data
+       and syncing game data between clients."""
 
     def __init__(self):
         self.registering = True
@@ -16,17 +20,17 @@ class GameData():
         self.random_seed = randint(0, 30000)
 
     def register(self, name):
-        """Ajouter un nouveau joueur à la partie."""
+        """Register a new player on the server."""
         if self.registering and name not in self.players.keys():
-            self.players.update(name=None)
+            self.players[name] = None
             return self.random_seed
         else:
             return None
 
     def game_packets(self, name):
-        """Crée les paquets à distribuer aux clients.
-           Return (True, Player list) si Lobby
-           Return (False, Informations) si partie"""
+        """Create packets to distribute to the clients.
+           Return (True, Player List) if in Lobby
+           Return (False, Game infos) if in Game"""
         if self.registering:
             return (False, list(self.players.keys()))
         else:
@@ -47,8 +51,12 @@ class GameData():
 
 class Server():
 
+    """Dedicated server instance for **RTSTITLE**."""
+
     def __init__(self):
         self.game_data = GameData()
+        self.view = ServerView(self.game_data)
+        self.view.mainloop()
 
     def create_server(self):
         """Creates a new server instance."""
@@ -59,7 +67,20 @@ class Server():
         uri = self.deamon.register(self, "uri")
         self.deamon.requestLoop()
 
-    def 
+    def event_loop(self):
+        pass
+
+    def register(self, name):
+        return self.game_data.register(name)
+
+    def game_packets(self, name):
+        return self.game_data.game_packets(name)
+
+    def receive_info(self, actions):
+        return self.game_data.receive_info(actions)
+
+    def client_quit(self, name):
+        pass
 
 
 if __name__ == '__main__':
