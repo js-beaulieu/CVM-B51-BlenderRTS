@@ -19,7 +19,7 @@ class ServerController():
         self.gui = ServerView(self.server)
         self.gui_update()
         if self.server.is_initialized():
-            self.gui.server_event("Connexion au serveur réussie!")
+            self.gui.server_event("Serveur démarré. Informations de connexion:")
             self.gui.server_event(self.get_local_ip() + "/" + str(47089))
         else:
             self.gui.server_event("Erreur de connexion. Relancer le serveur.")

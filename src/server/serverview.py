@@ -95,7 +95,7 @@ class ServerView(tk.Tk):
     def shutdown(self):
         if self.server.is_initialized():
             if messagebox.askyesno("Arrêter le serveur?",
-                                   "Voulez-vous fermer le serveur?" +
+                                   "Voulez-vous fermer le serveur?\n" +
                                    " Ceci éjecte les joueurs connectés."):
                 self.server.shutdown()
         self.destroy()
