@@ -6,6 +6,7 @@
 import Pyro4
 from random import randint
 import socket
+from threading import Timer
 
 
 class GameData():
@@ -97,7 +98,7 @@ class Server():
         return self.game_data.receive_info(actions)
 
     def client_quit(self, name):
-        pass
+        del self.game_data.players[name]
 
     ############################################################################
     # Shutting down the server                                                 #
