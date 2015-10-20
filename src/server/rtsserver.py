@@ -66,6 +66,7 @@ class Server():
 
     def __init__(self):
         self.game_data = GameData()
+        self.create_server()
         self.view = ServerView(self)
         self.server_ui_loop()
         self.view.mainloop()
@@ -84,7 +85,7 @@ class Server():
                                                          ipVersion=4)
         self.deamon = Pyro4.Daemon(host=local_ip_address, port=47098)
         uri = self.deamon.register(self, "uri")
-        Thread(self.deamon.requestLoop)
+        self.deamon.requestLoop()
         self.view.server_event("Serveur créé - " + str(local_ip_address) +
                                "/" + str(47098))  # port
 
@@ -108,9 +109,13 @@ class Server():
         self.view.server_event(name + " a quitté.")
         pass
 
-    def shutdown(self):
-        timer = threading.Timer(1, self.deamon.shutdown)
+    def quitapp(self):
+        timer = threading.Timer(3, self.shutdown)
         timer.start()
+        self.view.destroy()
+
+    def shutdown(self):
+        self.deamon.shutdown()
 
 
 if __name__ == '__main__':

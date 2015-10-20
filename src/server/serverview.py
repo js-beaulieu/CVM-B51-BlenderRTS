@@ -18,26 +18,13 @@ class ServerView(tk.Tk):
         self.main_window()
         self.resizable(width=False, height=False)
         self.title("**RTSTITLE** - Dedicated Multiplayer Server manager")
-        self.protocol("WM_DELETE_WINDOW", self.button_stop.invoke())
+        self.protocol("WM_DELETE_WINDOW", self.shutdown)
 
     ############################################################################
     # Main window                                                              #
     ############################################################################
     def main_window(self):
         """Create the main window elements."""
-        # infos and controls
-        self.frame_infos = tk.Frame(self, width=150, padx=15, pady=15)
-        self.frame_infos.pack(side=tk.LEFT, fill=tk.Y)
-        label_infos = tk.Label(self.frame_infos, text="Contrôle serveur")
-        label_infos.pack(pady=5, anchor=tk.CENTER)
-        button_create = tk.Button(self.frame_infos, text="Start", padx=10)
-        button_create.bind("<Button-1>", self.event_button_create)
-        button_create.pack(pady=5)
-        self.button_stop = tk.Button(self.frame_infos, text="Stop", padx=10)
-        self.button_stop.bind("<Button-1>", self.event_button_stop)
-        self.button_stop.pack(pady=5)
-        ttk.Separator(self.frame_infos).pack(fill=tk.X, pady=20)
-
         # players list + chat
         self.frame_players = tk.Frame(self, width=400, padx=15, pady=15)
         self.frame_players.pack(side=tk.LEFT, fill=tk.Y)
@@ -68,7 +55,7 @@ class ServerView(tk.Tk):
     def pop_chatbox(self):
         """Returns a tkinter frame containing the chat box."""
         frame = tk.Frame(self.frame_players)
-        label_chat = tk.Label(frame, text="Chat")
+        label_chat = tk.Label(frame, text="Messages - ADMIN")
         label_chat.pack(pady=5, anchor=tk.CENTER)
         scrollbar = tk.Scrollbar(frame)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
@@ -81,7 +68,7 @@ class ServerView(tk.Tk):
     def pop_chat_controls(self):
         """Returns a tkinter frame containing the chat controls."""
         frame = tk.Frame(self.frame_players)
-        self.chat_entry = tk.Entry(frame, width=42)
+        self.chat_entry = tk.Entry(frame, width=42, state=tk.DISABLED)
         self.chat_entry.pack(side=tk.LEFT, fill=tk.X, anchor=tk.W)
         self.chat_entry.bind("<Return>", self.event_button_chat)
         button = tk.Button(frame, text="Envoyer")
@@ -105,12 +92,11 @@ class ServerView(tk.Tk):
     ############################################################################
     # Buttons and binds                                                        #
     ############################################################################
-    def event_button_create(self, event):
-        self.server.create_server()
-
-    def event_button_stop(self, event):
-        if messagebox.askyesno("Arrêter le serveur?", "Ceci éjecte les joueurs connectés."):
-            self.server.shutdown()
+    def shutdown(self):
+        if messagebox.askyesno("Arrêter le serveur?",
+                               "Voulez-vous fermer le serveur?" +
+                               " Ceci éjecte les joueurs connectés."):
+            self.server.quitapp()
 
     def event_button_chat(self, event):
         if self.chat_entry.get():
