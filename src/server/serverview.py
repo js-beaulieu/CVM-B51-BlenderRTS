@@ -4,7 +4,7 @@
 # Author : Jean-Sébastien Beaulieu
 
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import messagebox
 from datetime import datetime
 
 
@@ -47,7 +47,7 @@ class ServerView(tk.Tk):
         frame = tk.Frame(self.frame_players, height=100)
         label_players = tk.Label(self.frame_players, text="Joueurs connectés")
         label_players.pack(pady=5, anchor=tk.CENTER)
-        for k in self.server.game_data.players:
+        for k in self.server.get_players():
             player = tk.Label(frame, text=k)
             player.pack(anchor=tk.W)
         return frame
@@ -68,7 +68,7 @@ class ServerView(tk.Tk):
     def pop_chat_controls(self):
         """Returns a tkinter frame containing the chat controls."""
         frame = tk.Frame(self.frame_players)
-        self.chat_entry = tk.Entry(frame, width=42, state=tk.DISABLED)
+        self.chat_entry = tk.Entry(frame, width=42)
         self.chat_entry.pack(side=tk.LEFT, fill=tk.X, anchor=tk.W)
         self.chat_entry.bind("<Return>", self.event_button_chat)
         button = tk.Button(frame, text="Envoyer")
@@ -92,15 +92,22 @@ class ServerView(tk.Tk):
     ############################################################################
     # Buttons and binds                                                        #
     ############################################################################
+    def connection_error(self):
+        messagebox.showerror("Erreur de connexion!",
+                             "Malheureusement, le serveur n'a pas pu démarrer." +
+                             "Le gestionnaire va maintenant fermer.")
+        self.destroy()
+
     def shutdown(self):
         if messagebox.askyesno("Arrêter le serveur?",
-                               "Voulez-vous fermer le serveur?" +
+                               "Voulez-vous fermer le serveur?\n" +
                                " Ceci éjecte les joueurs connectés."):
-            self.server.quitapp()
+            self.server.shutdown()
+        self.destroy()
 
     def event_button_chat(self, event):
         if self.chat_entry.get():
-            self.server.game_data.chat.append("ADMIN: " + self.chat_entry.get() + "\n")
+            self.server.chat_message("ADMIN", self.chat_entry.get())
             self.chat_entry.delete(0, tk.END)
 
     ############################################################################
@@ -108,12 +115,13 @@ class ServerView(tk.Tk):
     ############################################################################
     def new_messages(self):
         """Updates the chatbox with the messages since the last query."""
-        for i in self.server.game_data.chat:
-            self.chatbg.config(state=tk.NORMAL)
-            self.chatbg.insert(tk.END, i)
-            self.chatbg.config(state=tk.DISABLED)
-            self.chatbg.see(tk.END)
-        self.server.game_data.chat = []
+        if self.server.get_new_chat() is not None:
+            for i in self.server.get_new_chat():
+                self.chatbg.config(state=tk.NORMAL)
+                self.chatbg.insert(tk.END, i)
+                self.chatbg.config(state=tk.DISABLED)
+                self.chatbg.see(tk.END)
+        self.server.empty_new_chat()
 
     def server_event(self, event):
         """Creates a new entry in the server log."""
@@ -122,3 +130,8 @@ class ServerView(tk.Tk):
         self.log.insert(tk.END, time.split(".")[0] + " - " + event + "\n")
         self.log.config(state=tk.DISABLED)
         self.log.see(tk.END)
+
+    @staticmethod
+    def erbox(title, text):
+        """Static method that creates a messagebox."""
+        messagebox.showerror(title, text)
