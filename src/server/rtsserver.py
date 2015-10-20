@@ -54,19 +54,17 @@ class Server():
     """Dedicated server instance for **RTSTITLE**."""
 
     def __init__(self):
-        self.initialized = False
         self.game_data = GameData()
         self.create_server()
 
     def create_server(self):
-        """Attempts to  a new server instance."""
+        """Attempts to create a new server instance."""
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             s.connect(('8.8.8.8', 0))
             local_ip_address = s.getsockname()[0]
             self.deamon = Pyro4.Daemon(host=local_ip_address, port=47089)
             uri = self.deamon.register(self, "uri")
-            self.initialized = True
             self.deamon.requestLoop()
         except:
             pass
@@ -74,9 +72,6 @@ class Server():
     ############################################################################
     # Interaction between clients and game_data                                #
     ############################################################################
-    def is_initialized(self):
-        return self.initialized
-
     def get_players(self):
         return self.game_data.players
 
@@ -90,7 +85,7 @@ class Server():
         self.game_data.chat = []
 
     def chat_message(self, name, message):
-        self.game_data.append(str(name) + ": " + str(message))
+        self.game_data.chat.append(str(name) + ": " + str(message) + "\n")
 
     def register(self, name):
         return self.game_data.register(name)

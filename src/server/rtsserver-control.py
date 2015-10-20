@@ -15,15 +15,18 @@ class ServerController():
 
     def __init__(self):
         Popen(["python", "rtsserver.py"])
-        self.connect_server()
-        self.gui = ServerView(self.server)
-        self.gui_update()
-        if self.server.is_initialized():
+        try:
+            self.connect_server()
+        except:
+            ServerView.erbox("Erreur de connexion",
+                             "Le serveur n'a pas pu être rejoint.\n" +
+                             "Le gestionnaire de serveur va maintenant fermer.")
+        else:
+            self.gui = ServerView(self.server)
             self.gui.server_event("Serveur démarré. Informations de connexion:")
             self.gui.server_event(self.get_local_ip() + "/" + str(47089))
-        else:
-            self.gui.server_event("Erreur de connexion. Relancer le serveur.")
-        self.gui.mainloop()
+            self.gui_update()
+            self.gui.mainloop()
 
     def gui_update(self):
         self.gui.new_messages()
@@ -31,12 +34,9 @@ class ServerController():
 
     def connect_server(self):
         """Attempts to open a new server connection."""
-        try:
-            ip = self.get_local_ip()
-            uri = "PYRO:uri@" + ip + ":47089"
-            self.server = Pyro4.Proxy(uri)
-        except:
-            pass
+        ip = self.get_local_ip()
+        uri = "PYRO:uri@" + ip + ":47089"
+        self.server = Pyro4.Proxy(uri)
 
     def get_local_ip(self):
         """Returns the local IP address"""
