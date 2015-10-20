@@ -4,7 +4,7 @@
 # Author : Jean-Sébastien Beaulieu
 
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import messagebox
 from datetime import datetime
 
 
@@ -47,7 +47,7 @@ class ServerView(tk.Tk):
         frame = tk.Frame(self.frame_players, height=100)
         label_players = tk.Label(self.frame_players, text="Joueurs connectés")
         label_players.pack(pady=5, anchor=tk.CENTER)
-        for k in self.server.game_data.players:
+        for k in self.server.get_players():
             player = tk.Label(frame, text=k)
             player.pack(anchor=tk.W)
         return frame
@@ -93,14 +93,17 @@ class ServerView(tk.Tk):
     # Buttons and binds                                                        #
     ############################################################################
     def shutdown(self):
-        if messagebox.askyesno("Arrêter le serveur?",
-                               "Voulez-vous fermer le serveur?" +
-                               " Ceci éjecte les joueurs connectés."):
-            self.server.quitapp()
+        if self.server.is_initialized():
+            if messagebox.askyesno("Arrêter le serveur?",
+                                   "Voulez-vous fermer le serveur?" +
+                                   " Ceci éjecte les joueurs connectés."):
+                self.server.shutdown()
+        self.destroy()
 
     def event_button_chat(self, event):
         if self.chat_entry.get():
-            self.server.game_data.chat.append("ADMIN: " + self.chat_entry.get() + "\n")
+            self.server.get_new_chat().append("ADMIN: " +
+                                              self.chat_entry.get() + "\n")
             self.chat_entry.delete(0, tk.END)
 
     ############################################################################
@@ -108,12 +111,12 @@ class ServerView(tk.Tk):
     ############################################################################
     def new_messages(self):
         """Updates the chatbox with the messages since the last query."""
-        for i in self.server.game_data.chat:
+        for i in list(self.server.get_new_chat()):
             self.chatbg.config(state=tk.NORMAL)
             self.chatbg.insert(tk.END, i)
             self.chatbg.config(state=tk.DISABLED)
             self.chatbg.see(tk.END)
-        self.server.game_data.chat = []
+        self.server.empty_new_chat()
 
     def server_event(self, event):
         """Creates a new entry in the server log."""

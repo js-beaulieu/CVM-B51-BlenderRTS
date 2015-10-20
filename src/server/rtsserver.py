@@ -5,9 +5,7 @@
 
 import Pyro4
 from random import randint
-# import socket
-from serverview import ServerView
-import threading
+import socket
 
 
 class GameData():
@@ -51,52 +49,50 @@ class GameData():
             self.players[key] = actions
 
 
-class Thread(threading.Thread):
-
-    """Quick threading solution for Tkinter and Pyro4 to work together."""
-
-    def __init__(self, t, *args):
-        threading.Thread.__init__(self, target=t, args=args)
-        self.start()
-
-
 class Server():
 
     """Dedicated server instance for **RTSTITLE**."""
 
     def __init__(self):
+        self.initialized = False
         self.game_data = GameData()
         self.create_server()
-        self.view = ServerView(self)
-        self.server_ui_loop()
-        self.view.mainloop()
-
-    def server_ui_loop(self):
-        self.view.new_messages()
-        self.view.after(250, self.server_ui_loop)
 
     def create_server(self):
-        """Creates a new server instance."""
-        # s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        # s.connect(('8.8.8.8', 0))
-        # local_ip_address = s.getsockname()[0]
-        local_ip_address = Pyro4.socketutil.getIpAddress("localhost",
-                                                         workaround127=True,
-                                                         ipVersion=4)
-        self.deamon = Pyro4.Daemon(host=local_ip_address, port=47098)
-        uri = self.deamon.register(self, "uri")
-        self.deamon.requestLoop()
-        self.view.server_event("Serveur créé - " + str(local_ip_address) +
-                               "/" + str(47098))  # port
+        """Attempts to  a new server instance."""
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(('8.8.8.8', 0))
+            local_ip_address = s.getsockname()[0]
+            self.deamon = Pyro4.Daemon(host=local_ip_address, port=47089)
+            uri = self.deamon.register(self, "uri")
+            self.initialized = True
+            self.deamon.requestLoop()
+        except:
+            pass
+
+    ############################################################################
+    # Interaction between clients and game_data                                #
+    ############################################################################
+    def is_initialized(self):
+        return self.initialized
+
+    def get_players(self):
+        return self.game_data.players
+
+    def empty_players(self):
+        self.game_data.players = {}
+
+    def get_new_chat(self):
+        return self.game_data.chat
+
+    def empty_new_chat(self):
+        self.game_data.chat = []
 
     def chat_message(self, name, message):
         self.game_data.append(str(name) + ": " + str(message))
 
-    def event_loop(self):
-        pass
-
     def register(self, name):
-        self.view.server_event("Connexion au lobby - " + name)
         return self.game_data.register(name)
 
     def game_packets(self, name):
@@ -106,14 +102,11 @@ class Server():
         return self.game_data.receive_info(actions)
 
     def client_quit(self, name):
-        self.view.server_event(name + " a quitté.")
         pass
 
-    def quitapp(self):
-        timer = threading.Timer(3, self.shutdown)
-        timer.start()
-        self.view.destroy()
-
+    ############################################################################
+    # Shutting down the server                                                 #
+    ############################################################################
     def shutdown(self):
         self.deamon.shutdown()
 
