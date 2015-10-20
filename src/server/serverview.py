@@ -4,7 +4,7 @@
 # Author : Jean-Sébastien Beaulieu
 
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from datetime import datetime
 
 
@@ -12,13 +12,13 @@ class ServerView(tk.Tk):
 
     """Main window for **RTSTITLE** standalone dedicated server."""
 
-    def __init__(self, model):
+    def __init__(self, server):
         tk.Tk.__init__(self)
-        self.model = model
-
+        self.server = server
+        self.main_window()
         self.resizable(width=False, height=False)
         self.title("**RTSTITLE** - Dedicated Multiplayer Server manager")
-        self.main_window()
+        self.protocol("WM_DELETE_WINDOW", self.button_stop.invoke())
 
     ############################################################################
     # Main window                                                              #
@@ -33,9 +33,9 @@ class ServerView(tk.Tk):
         button_create = tk.Button(self.frame_infos, text="Start", padx=10)
         button_create.bind("<Button-1>", self.event_button_create)
         button_create.pack(pady=5)
-        button_stop = tk.Button(self.frame_infos, text="Stop", padx=10)
-        button_stop.bind("<Button-1>", self.event_button_stop)
-        button_stop.pack(pady=5)
+        self.button_stop = tk.Button(self.frame_infos, text="Stop", padx=10)
+        self.button_stop.bind("<Button-1>", self.event_button_stop)
+        self.button_stop.pack(pady=5)
         ttk.Separator(self.frame_infos).pack(fill=tk.X, pady=20)
 
         # players list + chat
@@ -60,7 +60,7 @@ class ServerView(tk.Tk):
         frame = tk.Frame(self.frame_players, height=100)
         label_players = tk.Label(self.frame_players, text="Joueurs connectés")
         label_players.pack(pady=5, anchor=tk.CENTER)
-        for k in self.model.players:
+        for k in self.server.game_data.players:
             player = tk.Label(frame, text=k)
             player.pack(anchor=tk.W)
         return frame
@@ -98,7 +98,7 @@ class ServerView(tk.Tk):
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.log = tk.Text(frame, yscrollcommand=scrollbar.set,
                            state=tk.DISABLED, padx=5, pady=5, height=30,
-                           width=40, font=("Consolas", 10))
+                           width=50, font=("Consolas", 10))
         self.log.pack(fill=tk.BOTH)
         return frame
 
@@ -106,30 +106,33 @@ class ServerView(tk.Tk):
     # Buttons and binds                                                        #
     ############################################################################
     def event_button_create(self, event):
-        print("Creer server")
+        self.server.create_server()
 
     def event_button_stop(self, event):
-        print("Arreter server")
+        if messagebox.askyesno("Arrêter le serveur?", "Ceci éjecte les joueurs connectés."):
+            self.server.shutdown()
 
     def event_button_chat(self, event):
         if self.chat_entry.get():
-            self.model.chat.append("ADMIN: " + self.chat_entry.get() + "\n")
+            self.server.game_data.chat.append("ADMIN: " + self.chat_entry.get() + "\n")
             self.chat_entry.delete(0, tk.END)
 
     ############################################################################
     # Update UI                                                                #
     ############################################################################
     def new_messages(self):
-        for i in self.model.chat:
+        """Updates the chatbox with the messages since the last query."""
+        for i in self.server.game_data.chat:
             self.chatbg.config(state=tk.NORMAL)
             self.chatbg.insert(tk.END, i)
             self.chatbg.config(state=tk.DISABLED)
             self.chatbg.see(tk.END)
-        self.model.chat = []
+        self.server.game_data.chat = []
 
     def server_event(self, event):
         """Creates a new entry in the server log."""
         self.log.config(state=tk.NORMAL)
-        self.log.insert(tk.END, str(datetime.now().time()) + " - " + event + "\n")
+        time = str(datetime.now().time())
+        self.log.insert(tk.END, time.split(".")[0] + " - " + event + "\n")
         self.log.config(state=tk.DISABLED)
         self.log.see(tk.END)
