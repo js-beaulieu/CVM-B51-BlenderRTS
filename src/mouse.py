@@ -22,14 +22,6 @@ def launch():
         addobj.linearVelocity = (-1, 20*(clock() - Game.startclock1), 0)
         control.activate(addobj)
     elif logic.mouse.events[logic.KX_MOUSE_BUT_RIGHT] == logic.KX_INPUT_JUST_RELEASED:
-        addobj = control.actuators["Edit Object1"]
+        addobj = control.actuators["Edit Object"]
         addobj.linearVelocity = (-1, 20*(clock() - Game.startclock2), 0)
         control.activate(addobj)
-        
-def mouseView():
-    obj=bge.logic.getCurrentController()
-    
-    
-    if obj.sensors["Mouse"].positive and obj.sensors["Mouse1"].positive:
-        print(obj.sensors)
-        print("OK",obj.sensors["Mouse"].hitPosition,obj.sensors["Mouse"].hitObject)
