@@ -20,6 +20,8 @@ class ServerView(tk.Tk):
         self.title("**RTSTITLE** - Dedicated Multiplayer Server manager")
         self.protocol("WM_DELETE_WINDOW", self.shutdown)
 
+        self.chat_history = []  # to keep in memory messages already shown
+
     ############################################################################
     # Main window                                                              #
     ############################################################################
@@ -117,11 +119,12 @@ class ServerView(tk.Tk):
         """Updates the chatbox with the messages since the last query."""
         if self.server.get_new_chat() is not None:
             for i in self.server.get_new_chat():
-                self.chatbg.config(state=tk.NORMAL)
-                self.chatbg.insert(tk.END, i)
-                self.chatbg.config(state=tk.DISABLED)
-                self.chatbg.see(tk.END)
-        self.server.empty_new_chat()
+                if i not in self.chat_history:
+                    self.chat_history.append(i)
+                    self.chatbg.config(state=tk.NORMAL)
+                    self.chatbg.insert(tk.END, i)
+                    self.chatbg.config(state=tk.DISABLED)
+                    self.chatbg.see(tk.END)
 
     def server_event(self, event):
         """Creates a new entry in the server log."""
