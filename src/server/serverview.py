@@ -91,6 +91,7 @@ class ServerView(tk.Tk):
                            state=tk.DISABLED, padx=5, pady=5, height=30,
                            width=50, font=("Consolas", 10))
         self.log.pack(fill=tk.BOTH)
+
         return frame
 
     ############################################################################
