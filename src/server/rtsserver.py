@@ -7,6 +7,7 @@ import Pyro4
 from random import randint
 from threading import Timer
 from servertools import ServerTools
+from datetime import datetime
 
 
 class GameData():
@@ -63,7 +64,7 @@ class Server():
         try:
             ip = ServerTools.get_local_ip()
             self.deamon = Pyro4.Daemon(host=ip, port=47089)
-            self.uri = self.deamon.register(self, "uri")                # port
+            self.uri = self.deamon.register(self, "uri")
             self.deamon.requestLoop()
         except:
             pass
@@ -87,7 +88,9 @@ class Server():
         self.game_data.chat = []
 
     def chat_message(self, name, message):
-        self.game_data.chat.append(str(name) + ": " + str(message) + "\n")
+        time_ms = datetime.now()
+        chat_string = str(name) + ": " + str(message) + "\n"
+        self.game_data.chat.append([time_ms, chat_string])
 
     def register(self, name):
         return self.game_data.register(name)

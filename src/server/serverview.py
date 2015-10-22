@@ -124,7 +124,7 @@ class ServerView(tk.Tk):
                 if i not in self.chat_history:
                     self.chat_history.append(i)
                     self.chatbg.config(state=tk.NORMAL)
-                    self.chatbg.insert(tk.END, i)
+                    self.chatbg.insert(tk.END, i[1])
                     self.chatbg.config(state=tk.DISABLED)
                     self.chatbg.see(tk.END)
 

@@ -28,7 +28,7 @@ class ServerController():
 
     def gui_update(self):
         self.gui.new_messages()
-        self.gui.after(250, self.gui_update)
+        self.gui.after(50, self.gui_update)
 
     def connect_server(self):
         """Attempts to open a new server connection."""
