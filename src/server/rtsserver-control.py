@@ -28,6 +28,7 @@ class ServerController():
 
     def gui_update(self):
         self.gui.new_messages()
+        self.gui.new_user()
         self.gui.after(50, self.gui_update)
 
     def connect_server(self):

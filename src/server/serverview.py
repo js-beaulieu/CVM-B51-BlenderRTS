@@ -21,6 +21,7 @@ class ServerView(tk.Tk):
         self.protocol("WM_DELETE_WINDOW", self.shutdown)
 
         self.chat_history = []  # to keep in memory messages already shown
+        self.connected_players = []
         self.server_event("SERVEUR DÉMARRÉ")
         self.server_event("Informations de connexion :")
         self.server_event(str(server.get_server_info()))
@@ -31,14 +32,15 @@ class ServerView(tk.Tk):
     def main_window(self):
         """Create the main window elements."""
         # players list + chat
-        self.frame_players = tk.Frame(self, width=400, padx=15, pady=15)
+        self.frame_players = tk.Frame(self, width=350, padx=15, pady=15)
         self.frame_players.pack(side=tk.LEFT, fill=tk.Y)
-        self.playerlist_frame = self.pop_playerlist_frame()
-        self.playerlist_frame.pack(fill=tk.BOTH)
         self.chatbox = self.pop_chatbox()
         self.chatbox.pack(fill=tk.BOTH, expand=1)
         self.pop_chat_controls = self.pop_chat_controls()
         self.pop_chat_controls.pack(fill=tk.X, expand=1)
+        self.playerlist_frame = self.pop_playerlist_frame()
+        self.playerlist_frame.pack_propagate(False)
+        self.playerlist_frame.pack(fill=tk.BOTH)
 
         # server log
         self.frame_log = tk.Frame(self, padx=15, pady=15, width=400)
@@ -51,9 +53,6 @@ class ServerView(tk.Tk):
         frame = tk.Frame(self.frame_players, height=100)
         label_players = tk.Label(self.frame_players, text="Joueurs connectés")
         label_players.pack(pady=5, anchor=tk.CENTER)
-        for k in self.server.get_players():
-            player = tk.Label(frame, text=k)
-            player.pack(anchor=tk.W)
         return frame
 
     def pop_chatbox(self):
@@ -101,14 +100,14 @@ class ServerView(tk.Tk):
         messagebox.showerror("Erreur de connexion!",
                              "Malheureusement, le serveur n'a pas pu démarrer." +
                              "Le gestionnaire va maintenant fermer.")
-        self.destroy()
+        self.quit()
 
     def shutdown(self):
         if messagebox.askyesno("Arrêter le serveur?",
                                "Voulez-vous fermer le serveur?\n" +
                                " Ceci éjecte les joueurs connectés."):
             self.server.shutdown()
-            self.destroy()
+            self.quit()
 
     def event_button_chat(self, event):
         if self.chat_entry.get():
@@ -128,6 +127,12 @@ class ServerView(tk.Tk):
                     self.chatbg.insert(tk.END, i[1])
                     self.chatbg.config(state=tk.DISABLED)
                     self.chatbg.see(tk.END)
+
+    def new_user(self):
+        for name in self.server.get_players():
+            if name not in self.connected_players:
+                self.connected_players.append(name)
+                tk.Label(self.playerlist_frame, text=name).pack(anchor=tk.W)
 
     def server_event(self, event):
         """Creates a new entry in the server log."""
