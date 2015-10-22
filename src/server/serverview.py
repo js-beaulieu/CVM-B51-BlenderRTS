@@ -21,6 +21,9 @@ class ServerView(tk.Tk):
         self.protocol("WM_DELETE_WINDOW", self.shutdown)
 
         self.chat_history = []  # to keep in memory messages already shown
+        self.server_event("SERVEUR DÉMARRÉ")
+        self.server_event("Informations de connexion :")
+        self.server_event(str(server.get_server_info()))
 
     ############################################################################
     # Main window                                                              #
@@ -42,7 +45,6 @@ class ServerView(tk.Tk):
         self.frame_log.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
         log = self.pop_server_events()
         log.pack(fill=tk.BOTH)
-        self.log.insert(tk.END, str(datetime.now().time()) + "SERVER STARTED")
 
     def pop_playerlist_frame(self):
         """Returns a tkinter frame containing the playerlist."""
@@ -105,7 +107,7 @@ class ServerView(tk.Tk):
                                "Voulez-vous fermer le serveur?\n" +
                                " Ceci éjecte les joueurs connectés."):
             self.server.shutdown()
-        self.destroy()
+            self.destroy()
 
     def event_button_chat(self, event):
         if self.chat_entry.get():
@@ -133,8 +135,3 @@ class ServerView(tk.Tk):
         self.log.insert(tk.END, time.split(".")[0] + " - " + event + "\n")
         self.log.config(state=tk.DISABLED)
         self.log.see(tk.END)
-
-    @staticmethod
-    def erbox(title, text):
-        """Static method that creates a messagebox."""
-        messagebox.showerror(title, text)
