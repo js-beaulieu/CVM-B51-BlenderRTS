@@ -16,5 +16,6 @@ class Controller():
         #self.model.update()
         #todo
 
+
 if __name__ == '__main__':
     bge.controller = Controller()

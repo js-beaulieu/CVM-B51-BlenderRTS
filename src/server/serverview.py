@@ -20,6 +20,11 @@ class ServerView(tk.Tk):
         self.title("**RTSTITLE** - Dedicated Multiplayer Server manager")
         self.protocol("WM_DELETE_WINDOW", self.shutdown)
 
+        self.chat_history = []  # to keep in memory messages already shown
+        self.server_event("SERVEUR DÉMARRÉ")
+        self.server_event("Informations de connexion :")
+        self.server_event(str(server.get_server_info()))
+
     ############################################################################
     # Main window                                                              #
     ############################################################################
@@ -40,7 +45,6 @@ class ServerView(tk.Tk):
         self.frame_log.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
         log = self.pop_server_events()
         log.pack(fill=tk.BOTH)
-        self.log.insert(tk.END, str(datetime.now().time()) + "SERVER STARTED")
 
     def pop_playerlist_frame(self):
         """Returns a tkinter frame containing the playerlist."""
@@ -87,6 +91,7 @@ class ServerView(tk.Tk):
                            state=tk.DISABLED, padx=5, pady=5, height=30,
                            width=50, font=("Consolas", 10))
         self.log.pack(fill=tk.BOTH)
+
         return frame
 
     ############################################################################
@@ -103,7 +108,7 @@ class ServerView(tk.Tk):
                                "Voulez-vous fermer le serveur?\n" +
                                " Ceci éjecte les joueurs connectés."):
             self.server.shutdown()
-        self.destroy()
+            self.destroy()
 
     def event_button_chat(self, event):
         if self.chat_entry.get():
@@ -117,11 +122,12 @@ class ServerView(tk.Tk):
         """Updates the chatbox with the messages since the last query."""
         if self.server.get_new_chat() is not None:
             for i in self.server.get_new_chat():
-                self.chatbg.config(state=tk.NORMAL)
-                self.chatbg.insert(tk.END, i)
-                self.chatbg.config(state=tk.DISABLED)
-                self.chatbg.see(tk.END)
-        self.server.empty_new_chat()
+                if i not in self.chat_history:
+                    self.chat_history.append(i)
+                    self.chatbg.config(state=tk.NORMAL)
+                    self.chatbg.insert(tk.END, i[1])
+                    self.chatbg.config(state=tk.DISABLED)
+                    self.chatbg.see(tk.END)
 
     def server_event(self, event):
         """Creates a new entry in the server log."""
@@ -130,8 +136,3 @@ class ServerView(tk.Tk):
         self.log.insert(tk.END, time.split(".")[0] + " - " + event + "\n")
         self.log.config(state=tk.DISABLED)
         self.log.see(tk.END)
-
-    @staticmethod
-    def erbox(title, text):
-        """Static method that creates a messagebox."""
-        messagebox.showerror(title, text)
