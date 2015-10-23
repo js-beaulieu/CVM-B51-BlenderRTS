@@ -16,6 +16,7 @@ class ServerTools():
 
     @staticmethod
     def get_local_ip():
+        """Returns the local ip address for the machine."""
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(('8.8.8.8', 0))
         return s.getsockname()[0]
