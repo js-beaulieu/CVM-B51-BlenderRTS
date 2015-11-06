@@ -2,8 +2,6 @@ from bge import logic, events
 import bge
 
 
-CAMERA_SPEED = 0.99
-
 class Keyboard(object):
 
     def __init__(self, parent):
@@ -23,11 +21,11 @@ class Keyboard(object):
             for obj in bge.c.selectedUnits:
                 print(obj.id_nb)
         if logic.keyboard.events[events.WKEY] == logic.KX_INPUT_ACTIVE:
-            cam.position = [camX - CAMERA_SPEED, camY + CAMERA_SPEED, camZ]
+            cam.position = [camX - 0.1, camY + 0.1, camZ]
         if logic.keyboard.events[events.AKEY] == logic.KX_INPUT_ACTIVE:
-            cam.position = [camX - CAMERA_SPEED, camY - CAMERA_SPEED, camZ]
+            cam.position = [camX - 0.1, camY - 0.1, camZ]
         if logic.keyboard.events[events.SKEY] == logic.KX_INPUT_ACTIVE:
-            cam.position = [camX + CAMERA_SPEED, camY - CAMERA_SPEED, camZ]
+            cam.position = [camX + 0.1, camY - 0.1, camZ]
         if logic.keyboard.events[events.DKEY] == logic.KX_INPUT_ACTIVE:
-            cam.position = [camX + CAMERA_SPEED, camY + CAMERA_SPEED, camZ]
+            cam.position = [camX + 0.1, camY + 0.1, camZ]
         
