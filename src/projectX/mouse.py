@@ -18,22 +18,35 @@ class Mouse(object):
         scene = logic.getCurrentScene()
         mousePos = cont.sensors["Mouse_Pos"]
 
-        if logic.mouse.events[logic.KX_MOUSE_BUT_LEFT] == logic.KX_INPUT_JUST_ACTIVATED:
+        if logic.mouse.events[logic.KX_MOUSE_BUT_LEFT]:
+            self.left_click(logic.mouse.events[logic.KX_MOUSE_BUT_LEFT])
+        if logic.mouse.events[logic.KX_MOUSE_BUT_RIGHT]:
+            self.right_click(logic.mouse.events[logic.KX_MOUSE_BUT_RIGHT])
+
+
+        if logic.mouse.events[logic.KX_MOUSE_BUT_MIDDLE] == logic.KX_INPUT_JUST_ACTIVATED:
+            scene.objects['SpawnP'].worldPosition.x = mousePos.hitPosition[0] + 1.5  # for isometric cam... weird
+            scene.objects['SpawnP'].worldPosition.y = mousePos.hitPosition[1] - 1
+            scene.objects['Spawn_Circle'].worldPosition.x = mousePos.hitPosition[0]
+            scene.objects['Spawn_Circle'].worldPosition.y = mousePos.hitPosition[1]
+
+    def left_click(self, event):
+        if event == logic.KX_INPUT_JUST_ACTIVATED:
             self.parent.selectedUnits = []
             self.x1 = mousePos.hitPosition[0]    # enregistre les coordonees initiales
             self.y1 = mousePos.hitPosition[1]
 
-        if logic.mouse.events[logic.KX_MOUSE_BUT_LEFT] == logic.KX_INPUT_ACTIVE:
+        if event == logic.KX_INPUT_ACTIVE:
             self.x2 = mousePos.hitPosition[0]    # enregistre la position actuelle de la souris
             self.y2 = mousePos.hitPosition[1]
             z = mousePos.hitPosition[2] + 0.1
 
-            render.drawLine((self.x1, self.y1, z), (self.x2, self.y1, z), (1, 0, 0))    # param((point 1), (point 2), (RGB de 0.00 a 1.00)
+            render.drawLine((self.x1, self.y1, z), (self.x2, self.y1, z), (1, 0, 0))  # param((point 1), (point 2), (RGB de 0.00 a 1.00)
             render.drawLine((self.x1, self.y1, z), (self.x1, self.y2, z), (1, 0, 0))
             render.drawLine((self.x2, self.y2, z), (self.x2, self.y1, z), (1, 0, 0))
-            render.drawLine((self.x2, self.y2, z), (self.x1, self.y2, z), (1, 0, 0))     # qui dessine le rectangle tant que la souris est positive
+            render.drawLine((self.x2, self.y2, z), (self.x1, self.y2, z), (1, 0, 0))  # qui dessine le rectangle tant que la souris est positive
 
-        if logic.mouse.events[logic.KX_MOUSE_BUT_LEFT] == logic.KX_INPUT_JUST_RELEASED:
+        if event == logic.KX_INPUT_JUST_RELEASED:
             total = 0     # sert a tester
             if self.x1 > self.x2:
                 p = self.x2
@@ -56,7 +69,8 @@ class Mouse(object):
             print(total)
             # print("x1 = ", self.x1, ", y1 = ", self.y1, ", x2 = ", self.x2, ", y2 = ", self.y2)
 
-        if logic.mouse.events[logic.KX_MOUSE_BUT_RIGHT] == logic.KX_INPUT_JUST_ACTIVATED:
+    def right_click(self, event):
+        if event == logic.KX_INPUT_JUST_ACTIVATED:
             dist = 0
             for obj in self.parent.selectedUnits:
                 obj.destination = [mousePos.hitPosition[0] + dist, mousePos.hitPosition[1], obj.worldPosition[2]]
@@ -65,8 +79,12 @@ class Mouse(object):
                     self.parent.movingUnits.append(obj)
                     obj.moving = True
 
-        if logic.mouse.events[logic.KX_MOUSE_BUT_MIDDLE] == logic.KX_INPUT_JUST_ACTIVATED:
-            scene.objects['SpawnP'].worldPosition.x = mousePos.hitPosition[0]   + 1.5 # for isometric cam... weird
-            scene.objects['SpawnP'].worldPosition.y = mousePos.hitPosition[1]    - 1
-            scene.objects['Spawn_Circle'].worldPosition.x = mousePos.hitPosition[0]
-            scene.objects['Spawn_Circle'].worldPosition.y = mousePos.hitPosition[1]
+    def mouse_movement(self):
+        if logic.keyboard.events[events.WKEY] == logic.KX_INPUT_ACTIVE:
+            cam.position = [camX - CAMERA_SPEED, camY + CAMERA_SPEED, camZ]
+        if logic.keyboard.events[events.AKEY] == logic.KX_INPUT_ACTIVE:
+            cam.position = [camX - CAMERA_SPEED, camY - CAMERA_SPEED, camZ]
+        if logic.keyboard.events[events.SKEY] == logic.KX_INPUT_ACTIVE:
+            cam.position = [camX + CAMERA_SPEED, camY - CAMERA_SPEED, camZ]
+        if logic.keyboard.events[events.DKEY] == logic.KX_INPUT_ACTIVE:
+            cam.position = [camX + CAMERA_SPEED, camY + CAMERA_SPEED, camZ]

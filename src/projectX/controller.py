@@ -11,7 +11,7 @@ class Controller():
     def __init__(self):
         self.frame = 0
         self.mouse = Mouse(self)
-        self. keyboard = Keyboard(self)
+        self.keyboard = Keyboard(self)
         self.x = 0  # is used for testing purpose in addO()
         self.y = 0  # is used for testing purpose in addO()
         self.selectedUnits = []
@@ -20,7 +20,8 @@ class Controller():
 
     def addO(self):
         """ Temporary fonction used to test the controller, the spawn point move,
-        the subclassing of blender game objects and spawning them, well, it actually test everything ^^"""
+        the subclassing of blender game objects and spawning them,
+        well, it actually test everything ^^"""
         scene = bge.logic.getCurrentScene()
         scene.addObject('Unit', scene.objects['SpawnP'])
         self.count += 1
@@ -48,3 +49,5 @@ def update(cont):
             x = obj.worldPosition[0]
             y = obj.worldPosition[1]
             obj.move(x, y)
+            if not obj.moving:
+                self.movingUnits.remove(obj)
