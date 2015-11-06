@@ -16,5 +16,5 @@ sftp-config.json
 # log files
 *.log
 
-# .pyc files
-*.pyc
+# blender backup files
+*.blend1

@@ -12,9 +12,10 @@ class ServerView(tk.Tk):
 
     """Main window for **RTSTITLE** standalone dedicated server."""
 
-    def __init__(self, server):
+    def __init__(self, server, ns):
         tk.Tk.__init__(self)
         self.server = server
+        self.ns = ns
         self.main_window()
         self.resizable(width=False, height=False)
         self.title("**RTSTITLE** - Dedicated Multiplayer Server manager")
@@ -24,7 +25,8 @@ class ServerView(tk.Tk):
         self.connected_players = []
         self.server_event("SERVEUR DÉMARRÉ")
         self.server_event("Informations de connexion :")
-        self.server_event(str(server.get_server_info()))
+        self.server_event(str(self.server.get_server_info()))
+        # self.server_event(str(self.server.ping()))
 
     ############################################################################
     # Main window                                                              #
@@ -41,6 +43,7 @@ class ServerView(tk.Tk):
         self.playerlist_frame = self.pop_playerlist_frame()
         self.playerlist_frame.pack_propagate(False)
         self.playerlist_frame.pack(fill=tk.BOTH)
+        self.pop_player_list()
 
         # server log
         self.frame_log = tk.Frame(self, padx=15, pady=15, width=400)
@@ -51,9 +54,19 @@ class ServerView(tk.Tk):
     def pop_playerlist_frame(self):
         """Returns a tkinter frame containing the playerlist."""
         frame = tk.Frame(self.frame_players, height=100)
-        label_players = tk.Label(self.frame_players, text="Joueurs connectés")
-        label_players.pack(pady=5, anchor=tk.CENTER)
         return frame
+
+    def pop_player_list(self):
+        for widget in self.playerlist_frame.winfo_children():
+            widget.destroy()
+        tk.Label(self.playerlist_frame, text="Joueurs connectés").pack(
+                                                        pady=5, anchor=tk.CENTER)
+        try:
+            for name in self.connected_players:
+                tk.Label(self.playerlist_frame, text=name).pack(pady=5,
+                                                                anchor=tk.LEFT)
+        except:
+            pass
 
     def pop_chatbox(self):
         """Returns a tkinter frame containing the chat box."""
@@ -132,7 +145,15 @@ class ServerView(tk.Tk):
         for name in self.server.get_players():
             if name not in self.connected_players:
                 self.connected_players.append(name)
+<<<<<<< Updated upstream
                 tk.Label(self.playerlist_frame, text=name).pack(anchor=tk.W)
+                self.server_event(name + " s'est connecté.")
+=======
+        for name in self.connected_players:
+            if name not in self.server.get_players():
+                self.connected_players.remove(name)
+        self.pop_player_list()
+>>>>>>> Stashed changes
 
     def server_event(self, event):
         """Creates a new entry in the server log."""

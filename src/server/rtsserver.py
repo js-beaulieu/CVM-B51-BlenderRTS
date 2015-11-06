@@ -21,7 +21,7 @@ class GameData():
         self.chat = []
         self.random_seed = randint(0, 30000)
 
-    def register(self, name):
+    def register_user(self, name):
         """Register a new player on the server."""
         if self.registering and name not in self.players.keys():
             self.players[name] = None
@@ -32,16 +32,16 @@ class GameData():
     def game_packets(self, name):
         """Create packets to distribute to the clients.
            Return (False, Player list, Messages) if in Lobby
-           Return (True, Game infos) if in Game"""
+           Return (True, Game infos, Messages) if in Game"""
         if self.registering:
             return (False, list(self.players.keys()), self.chat)
         else:
             if self.players[name] is not None:
                 data_pack = self.players[name]
                 del self.players[name]
-                return (True, data_pack)
+                return (True, data_pack, self.chat)
             else:
-                return (True, None)
+                return (True, None, None)
 
     def receive_info(self, actions):
         """Receiving information from everyone."""
@@ -49,6 +49,12 @@ class GameData():
             self.registering = False
         for key in self.players:
             self.players[key] = actions
+
+    def kick_players(self, players):
+        """Kicks selected users out of the game."""
+        for p in players:
+            if p in self.players:
+                del self.players[p]
 
 
 class Server():
@@ -92,8 +98,9 @@ class Server():
         chat_string = str(name) + ": " + str(message) + "\n"
         self.game_data.chat.append([time_ms, chat_string])
 
-    def register(self, name):
-        return self.game_data.register(name)
+    def register_user(self, name, uri):
+        self.deamon.register(uri, objectId=name)
+        return self.game_data.register_user(name)
 
     def game_packets(self, name):
         return self.game_data.game_packets(name)
@@ -104,10 +111,14 @@ class Server():
     def client_quit(self, name):
         del self.game_data.players[name]
 
+    def registered_clients(self):
+        return self.deamon.registered()
+
     ############################################################################
     # Shutting down the server                                                 #
     ############################################################################
     def shutdown(self):
+        self.game_data
         self.deamon.shutdown()
 
 

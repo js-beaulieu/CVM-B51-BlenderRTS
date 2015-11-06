@@ -7,6 +7,7 @@ from serverview import ServerView
 from subprocess import Popen
 import Pyro4
 from servertools import ServerTools
+import time
 
 
 class ServerController():
@@ -14,6 +15,7 @@ class ServerController():
     """Controller class for the RTS server."""
 
     def __init__(self):
+        self.ip = str(ServerTools.get_local_ip())
         Popen(["python", "rtsserver.py"])
         try:
             self.connect_server()
@@ -22,7 +24,7 @@ class ServerController():
                               "Le serveur n'a pas pu être rejoint.\n" +
                               "Le gestionnaire de serveur va maintenant fermer.")
         else:
-            self.gui = ServerView(self.server)
+            self.gui = ServerView(self.server, ns)
             self.gui_update()
             self.gui.mainloop()
 
@@ -33,8 +35,9 @@ class ServerController():
 
     def connect_server(self):
         """Attempts to open a new server connection."""
-        uri = "PYRO:uri@" + str(ServerTools.get_local_ip()) + ":47089"
+        uri = "PYRO:uri@" + self.ip + ":47089"
         self.server = Pyro4.Proxy(uri)
+        # self.server.register_user("ADMIN", uri)
 
 
 if __name__ == '__main__':
