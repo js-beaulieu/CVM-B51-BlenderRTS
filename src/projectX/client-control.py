@@ -19,7 +19,7 @@ class Client():
 
     def connect_server(self):
         """Attempts to open a new server connection."""
-        uri = "PYRO:uri@" + str(self.ip) + ":47089"
+        uri = "PYRO:uri@" + str(self.ip) + ":48280"
         print(uri)
         self.server = Pyro4.Proxy(uri)
 

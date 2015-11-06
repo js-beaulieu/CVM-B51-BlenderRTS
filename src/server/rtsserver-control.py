@@ -35,7 +35,7 @@ class ServerController():
 
     def connect_server(self):
         """Attempts to open a new server connection."""
-        uri = "PYRO:uri@" + self.ip + ":47089"
+        uri = "PYRO:uri@" + self.ip + ":48280"
         self.server = Pyro4.Proxy(uri)
         # self.server.register_user("ADMIN", uri)
 

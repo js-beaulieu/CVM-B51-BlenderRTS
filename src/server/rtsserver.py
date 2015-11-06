@@ -69,7 +69,7 @@ class Server():
         """Attempts to create a new server instance."""
         try:
             ip = ServerTools.get_local_ip()
-            self.deamon = Pyro4.Daemon(host=ip, port=47089)
+            self.deamon = Pyro4.Daemon(host=ip, port=48280)
             self.uri = self.deamon.register(self, "uri")
             self.deamon.requestLoop()
         except:
