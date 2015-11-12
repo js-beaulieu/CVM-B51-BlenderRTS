@@ -14,8 +14,8 @@ class Unit(bge.types.KX_GameObject):
         self.selected = False
         self.circle = None
         self.moving = False
-        self.id_nb = "Unit_" + str(bge.c.count)
-        bge.c.units.append(self)
+        self.id_nb = "Unit_" + str(bge.c.game.civilisation.buildings[0].count)
+        bge.c.game.units.append(self)
 
     def move(self, x, y):
         """not using the blender sensors and logic brick, thats the python way bitch! :P"""
@@ -24,10 +24,10 @@ class Unit(bge.types.KX_GameObject):
             pos = self.getAngledPoint(angle, self.speed, x, y)
             self.worldPosition = [pos[0], pos[1], self.position[2]]
             dist = self.calcDistance(x, y, self.destination[0], self.destination[1])
-            #if self.selected:
-                #self.circle.worldPosition.x = pos[0]
-                #self.circle.worldPosition.y = pos[1]
-                #self.circle.worldPosition.z = self.position[2] 
+            # if self.selected:
+            # self.circle.worldPosition.x = pos[0]
+            # self.circle.worldPosition.y = pos[1]
+            # self.circle.worldPosition.z = self.position[2]
             if dist < 0.2:
                 self.position = self.destination
                 self.destination = []

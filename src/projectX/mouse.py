@@ -87,17 +87,14 @@ class Mouse(object):
             render.drawLine((self.x2, self.y2, z), (self.x1, self.y2, z), (1, 0, 0))
 
         def unit_select(scene, mouse_pos):
-            for obj in scene.objects:    # itere au travers les objets de la scene (pas excellent performances)
-                if isinstance(obj, Unit):    # Select = bool in object attributes
-                    if obj not in bge.c.units:
-                        self.parent.units.append(obj)
-                    x = obj.worldPosition[0]
-                    y = obj.worldPosition[1]
+            print("ok")
+            for obj in bge.c.game.units:
+                x = obj.worldPosition[0]
+                y = obj.worldPosition[1]
 
-                    if x > self.x1 and y > self.y1 and x < self.x2 and y < self.y2:    # si a linterieur du rectangle
-                        self.parent.selectedUnits.append(obj)
-                        # obj.circle = scene.addObject('Select_Circle', obj)
-                        obj.selected = True
+                if x > self.x1 and y > self.y1 and x < self.x2 and y < self.y2:    # si a linterieur du rectangle
+                    self.parent.game.selected_units.append(obj)
+                    obj.selected = True
 
         # Handling the click
         if self.key["LeftClick"] == logic.KX_INPUT_JUST_ACTIVATED:
@@ -125,13 +122,13 @@ class Mouse(object):
         """Handling right click actions."""
         if self.key["RightClick"] == logic.KX_INPUT_JUST_ACTIVATED:
             dist = 0
-            for obj in self.parent.selectedUnits:
+            for obj in self.parent.game.selected_units:
                 obj.destination = [mouse_pos.hitPosition[0] + dist,
                                    mouse_pos.hitPosition[1],
                                    obj.worldPosition[2]]
                 dist += 0.7
                 if not obj.moving:
-                    self.parent.movingUnits.append(obj)
+                    self.parent.game.moving_units.append(obj)
                     obj.moving = True
 
     ############################################################################
@@ -141,7 +138,7 @@ class Mouse(object):
         if self.key["MiddleClick"] == logic.KX_INPUT_JUST_ACTIVATED:
             scene.objects['Way_Circle'].worldPosition.x = mouse_pos.hitPosition[0]
             scene.objects['Way_Circle'].worldPosition.y = mouse_pos.hitPosition[1]
-            bge.c.buildings[0].way_point = True
+            bge.c.game.civilisation.buildings[0].way_point = True
             scene.objects['Way_Circle'].setVisible(True)
 
         if self.key["ScrollDown"] == logic.KX_INPUT_JUST_ACTIVATED:
