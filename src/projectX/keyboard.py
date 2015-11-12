@@ -9,6 +9,9 @@ class Keyboard(object):
 
     def __init__(self, parent):
         self.parent = parent
+        self.events_populate()
+
+    def events_populate(self):
         self.key = {
             "W": logic.keyboard.events[events.WKEY],
             "A": logic.keyboard.events[events.AKEY],
@@ -24,6 +27,7 @@ class Keyboard(object):
         camX = cam.position[0]
         camY = cam.position[1]
         camZ = cam.position[2]
+        self.events_populate()
 
         # camera movement
         if self.key["W"] == logic.KX_INPUT_ACTIVE:
