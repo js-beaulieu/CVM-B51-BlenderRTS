@@ -2,6 +2,9 @@ import bge
 from bge import events, render
 from mouse import *
 from keyboard import *
+from building import *
+from display import *
+from test import *
 
 scene = bge.logic.getCurrentScene()
 
@@ -10,36 +13,33 @@ class Controller():
 
     def __init__(self):
         self.frame = 0
+        self.display = bgui.bge_utils.System('../../themes/default')
+        self.display.load_layout(Display, None)
         self.mouse = Mouse(self)
-        self. keyboard = Keyboard(self)
-        self.x = 0  # is used for testing purpose in addO()
-        self.y = 0  # is used for testing purpose in addO()
+        self.keyboard = Keyboard(self)
+        self.buildings = []
+        self.units = []
         self.selectedUnits = []
         self.movingUnits = []
+        self.selectCircles = []
         self.count = 0
-
-    def addO(self):
-        """ Temporary fonction used to test the controller, the spawn point move,
-        the subclassing of blender game objects and spawning them, well, it actually test everything ^^"""
-        scene = bge.logic.getCurrentScene()
-        scene.addObject('Unit', scene.objects['SpawnP'])
-        self.count += 1
+        self.gold = 1000
 
 
 def main():
     """called once by the "Always" sensor named InitGame,
-    will remove sensors if we have timeits kinda complicated"""
+    will remove sensors if we have time its kinda complicated"""
     bge.c = Controller()
-    scene.addObject('Build', scene.objects['SpawnB'])
-    
-
+    render.showMouse(True)
+    render.setMousePosition(300, 300)
+    Building(scene.addObject('Build', scene.objects['SpawnB']))
 
 
 def update(cont):
     """called every frame by the "Always" sensor named Update
     this is the main loop"""
     bge.c.frame += 1
-    render.showMouse(True)
+    bge.c.display.run()
     if bge.logic.mouse.events:
         bge.c.mouse.select(cont)
 
@@ -51,3 +51,5 @@ def update(cont):
             x = obj.worldPosition[0]
             y = obj.worldPosition[1]
             obj.move(x, y)
+            if not obj.moving:
+                bge.c.movingUnits.remove(obj)
