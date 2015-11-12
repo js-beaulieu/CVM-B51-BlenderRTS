@@ -13,6 +13,10 @@ class Mouse(object):
         self.parent = parent
         self.key = {
             "LeftClick": logic.mouse.events[logic.KX_MOUSE_BUT_LEFT],
+            "RightClick": logic.mouse.events[logic.KX_MOUSE_BUT_RIGHT],
+            "MiddleClick": logic.mouse.events[logic.KX_MOUSE_BUT_MIDDLE],
+            "ScrollDown": logic.mouse.events[events.WHEELDOWNMOUSE],
+            "ScrollUp": logic.mouse.events[events.WHEELUPMOUSE]
         }
 
     def select(self, cont):
@@ -72,13 +76,14 @@ class Mouse(object):
                 self.y1, self.y2 = self.y2, self.y1
             self.unit_select(scene, mouse_pos)
 
+        # Local helper functions
         def draw_square(self):
             render.drawLine((self.x1, self.y1, z), (self.x2, self.y1, z), (1, 0, 0))
             render.drawLine((self.x1, self.y1, z), (self.x1, self.y2, z), (1, 0, 0))
             render.drawLine((self.x2, self.y2, z), (self.x2, self.y1, z), (1, 0, 0))
             render.drawLine((self.x2, self.y2, z), (self.x1, self.y2, z), (1, 0, 0))
 
-        def unit_select(self, ):
+        def unit_select(self, scene, mouse_pos):
             for obj in scene.objects:    # itere au travers les objets de la scene (pas excellent performances)
                 if isinstance(obj, Unit):    # Select = bool in object attributes
                     if obj not in bge.c.units:
@@ -92,7 +97,7 @@ class Mouse(object):
                         obj.selected = True
 
     def move_cam(self, scene, cam, side):
-        """Moves the camera in a direction."""
+        """Moves the camera in a given direction."""
         camX = cam.position[0]
         camY = cam.position[1]
         camZ = cam.position[2]
@@ -111,7 +116,7 @@ class Mouse(object):
     ############################################################################
     def right_click(self, mouse_pos):
         """Handling right click actions."""
-        if logic.mouse.events[logic.KX_MOUSE_BUT_RIGHT] == logic.KX_INPUT_JUST_ACTIVATED:
+        if self.key["RightClick"] == logic.KX_INPUT_JUST_ACTIVATED:
             dist = 0
             for obj in self.parent.selectedUnits:
                 obj.destination = [mouse_pos.hitPosition[0] + dist,
@@ -126,19 +131,19 @@ class Mouse(object):
     # Scroll wheel                                                             #
     ############################################################################
     def scroll_wheel(scene, cam, mouse_pos):
-        if logic.mouse.events[logic.KX_MOUSE_BUT_MIDDLE] == logic.KX_INPUT_JUST_ACTIVATED:
+        if self.key["MiddleClick"] == logic.KX_INPUT_JUST_ACTIVATED:
             scene.objects['Way_Circle'].worldPosition.x = mouse_pos.hitPosition[0]
             scene.objects['Way_Circle'].worldPosition.y = mouse_pos.hitPosition[1]
             bge.c.buildings[0].way_point = True
             scene.objects['Way_Circle'].setVisible(True)
 
-        if logic.mouse.events[events.WHEELDOWNMOUSE] == logic.KX_INPUT_JUST_ACTIVATED:
+        if self.key["ScrollDown"] == logic.KX_INPUT_JUST_ACTIVATED:
             cam = scene.cameras["Camera"]
             if cam.ortho_scale <= ZOOM_MAX:
                 for i in range(ZOOM_STEPS):
                     cam.ortho_scale += 1
 
-        if logic.mouse.events[events.WHEELUPMOUSE] == logic.KX_INPUT_JUST_ACTIVATED:
+        if self.key["ScrollUp"] == logic.KX_INPUT_JUST_ACTIVATED:
             cam = scene.cameras["Camera"]
             if cam.ortho_scale >= ZOOM_MIN:
                 for i in range(ZOOM_STEPS):
