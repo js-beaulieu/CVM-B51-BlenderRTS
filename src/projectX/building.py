@@ -9,10 +9,10 @@ class Building(bge.types.KX_GameObject):
         self.selected = False
         self.count = 1
         self.way_point = False
-        self.id_nb = "Build_" + str(bge.c.count)
-        bge.c.buildings.append(self)
+        self.id_nb = "Build_" + str(bge.c.frame)
+        bge.c.game.civilisation.buildings.append(self)
 
-    def createUnit(self):
+    def create_unit(self):
         scene = bge.logic.getCurrentScene()
         spawnX = self.worldPosition[0]
         spawnY = self.worldPosition[1]
@@ -69,15 +69,13 @@ class Building(bge.types.KX_GameObject):
                 self.count = 0
 
             self.count += 1
-            bge.c.count += 1
             scene.objects['SpawnP'].worldPosition = [spawnX, spawnY, spawnZ]
             new_unit = Unit(scene.addObject('Unit', scene.objects['SpawnP']))
 
         if self.way_point:
             self.count += 1
-            bge.c.count += 1
             new_unit = Unit(scene.addObject('Unit', scene.objects['SpawnP']))
             new_unit.moving = True
-            bge.c.movingUnits.append(new_unit)
+            bge.c.game.moving_units.append(new_unit)
             new_unit.destination = scene.objects['Way_Circle'].worldPosition
 

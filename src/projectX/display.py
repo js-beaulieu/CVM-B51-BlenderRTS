@@ -25,19 +25,19 @@ class Display(bgui.bge_utils.Layout):
 
         self.crtUnitsBtn.label.pt_size = 16
         self.constrBtn.label.pt_size = 16
-        self.statsBtn.label.pt_size = 16 
+        self.statsBtn.label.pt_size = 16
 
         self.crtUnitsBtn.on_click = self.button_click
         self.statsBtn.on_click = self.stats_panel
 
     def button_click(self, widget):
-        bge.c.buildings[0].createUnit()
+        bge.c.game.civilisation.buildings[0].create_unit()
         self.uselessLbl.text = 'Yippie! You clicked the button! ^_^'
 
     def stats_panel(self, widget):
         self.statsFrame = bgui.Frame(self, border=1, size=[0.6, 0.5], pos=[0.2, 0.4])
         self.statsFrame.colors = [(0, 0, 0, 0.4) for i in range(4)]
-        self.statsLbl = bgui.Label(self.statsFrame, text="Gold = "+ str(bge.c.gold), pos=[0.2, 0.8])   # + str(bge.c.gold)
+        self.statsLbl = bgui.Label(self.statsFrame, text="Gold = " + str(bge.c.game.civilisation.gold), pos=[0.2, 0.8])   # + str(bge.c.gold)
 
         """if not self.stats:
             self.stats = True

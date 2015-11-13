@@ -10,12 +10,21 @@ class Unit(bge.types.KX_GameObject):
     def __init__(self, parent):  # parent is the old bge object
         self.dmg = 15
         self.speed = 0.1
+        self.harvest_cycle = 30
         self.destination = []
+        self.harv_dest = []
         self.selected = False
-        self.circle = None
         self.moving = False
-        self.id_nb = "Unit_" + str(bge.c.count)
-        bge.c.units.append(self)
+        self.harvesting = False
+        self.stand = False
+        self.id_nb = "Unit_" + str(bge.c.game.civilisation.buildings[0].count)
+        bge.c.game.units.append(self)
+
+    def act(self):
+        if self.moving:
+            self.move()
+        if self.harvesting:
+            self.harvest()
 
     def move(self, x, y):
         """not using the blender sensors and logic brick, thats the python way bitch! :P"""
@@ -24,14 +33,21 @@ class Unit(bge.types.KX_GameObject):
             pos = self.getAngledPoint(angle, self.speed, x, y)
             self.worldPosition = [pos[0], pos[1], self.position[2]]
             dist = self.calcDistance(x, y, self.destination[0], self.destination[1])
-            #if self.selected:
-                #self.circle.worldPosition.x = pos[0]
-                #self.circle.worldPosition.y = pos[1]
-                #self.circle.worldPosition.z = self.position[2] 
+            # if self.selected:
+            # self.circle.worldPosition.x = pos[0]
+            # self.circle.worldPosition.y = pos[1]
+            # self.circle.worldPosition.z = self.position[2]
             if dist < 0.2:
                 self.position = self.destination
                 self.destination = []
                 self.moving = False
+
+    def harvest(self):
+        dist = self.calcDistance(x, y, self.destination[0], self.destination[1])
+        if self.worldPosition != 0:
+            pass
+
+
 
     def getAngledPoint(self, angle, longueur, cx, cy):
         x = (math.cos(angle)*longueur)+cx
