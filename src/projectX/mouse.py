@@ -124,11 +124,16 @@ class Mouse(object):
             if bge.c.game.selected_units:
                 if isinstance(mouse_pos.hitObject, Mine):
                     for obj in bge.c.game.selected_units:
-                        obj.harvesting = true
+                        obj.harv_mine = mouse_pos.hitObject
+                        obj.harvesting = True
                         obj.harv_dest = mouse_pos.hitObject.worldPosition
+                        obj.destination = mouse_pos.hitObject.worldPosition
+                        print(obj.destination)
                 else:
                     dist = 0
                     for obj in self.parent.game.selected_units:
+                        if obj.harvesting:
+                            obj.harvesting = False
                         obj.destination = [mouse_pos.hitPosition[0] + dist,
                                            mouse_pos.hitPosition[1],
                                            obj.worldPosition[2]]

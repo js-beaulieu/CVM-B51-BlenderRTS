@@ -3,10 +3,11 @@ import bgui
 import bgui.bge_utils
 
 
-class Display(bgui.bge_utils.Layout):
+class MainDisplay(bgui.bge_utils.Layout):
 
     def __init__(self, sys, data):
         super().__init__(sys, data)
+
         self.stats = False
 
         self.frame = bgui.Frame(self, border=1, size=[1, 0.2], pos=[0, 0])
@@ -17,7 +18,8 @@ class Display(bgui.bge_utils.Layout):
 
         self.background = bgui.Image(self.frame, 'wood.jpg', size=[1, 1], pos=[0, 0])
 
-        self.uselessLbl = bgui.Label(self.frame, text='createUnit', pt_size=16, pos=[0.01, 0.25])
+        self.goldLbl = bgui.Label(self.frame, text='Gold = ' + str(bge.c.game.civilisation.gold),
+        pt_size=24, color=(0,0,0,1), pos=[0.8, 0.8])
 
         self.crtUnitsBtn = bgui.FrameButton(self.frame, text='createUnit', size=[0.1, 0.15], pos=[0.01, 0.08])
         self.constrBtn = bgui.FrameButton(self.frame, text='build', size=[0.1, 0.15], pos=[0.12, 0.08])
@@ -32,17 +34,34 @@ class Display(bgui.bge_utils.Layout):
 
     def button_click(self, widget):
         bge.c.game.civilisation.buildings[0].create_unit()
-        self.uselessLbl.text = 'Yippie! You clicked the button! ^_^'
+        # self.goldLbl.text='Gold = ' + str(bge.c.game.civilisation.gold) 
+
 
     def stats_panel(self, widget):
+        bge.c.display.toggle_overlay(SubDisplay, None)
+
+
+
+    def update(self):
+        self.goldLbl.text='Gold = ' + str(bge.c.game.civilisation.gold) 
+
+
+
+class SubDisplay(bgui.bge_utils.Layout):
+
+    def __init__(self, sys, data):
+        super().__init__(sys, data)
+
         self.statsFrame = bgui.Frame(self, border=1, size=[0.6, 0.5], pos=[0.2, 0.4])
         self.statsFrame.colors = [(0, 0, 0, 0.4) for i in range(4)]
-        self.statsLbl = bgui.Label(self.statsFrame, text="Gold = " + str(bge.c.game.civilisation.gold), pos=[0.2, 0.8])   # + str(bge.c.gold)
+        self.goldLbl = bgui.Label(self.statsFrame, text="Gold = " + str(bge.c.game.civilisation.gold), pos=[0.2, 0.8])
+        self.closeBtn = bgui.FrameButton(self.statsFrame, text='close', size=[0.1, 0.15], pos=[0.23, 0.08])
+        self.closeBtn.label.pt_size = 16
 
-        """if not self.stats:
-            self.stats = True
-        elif self.stats:
-            self.stats = False"""
+    def update(self):
+        self.goldLbl.text='Gold = ' + str(bge.c.game.civilisation.gold) 
+
+
 
 
  

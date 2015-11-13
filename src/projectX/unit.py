@@ -11,8 +11,10 @@ class Unit(bge.types.KX_GameObject):
         self.dmg = 15
         self.speed = 0.1
         self.harvest_cycle = 30
-        self.destination = []
+        self.harv_chrono = 0
         self.harv_dest = []
+        self.harv_mine = None
+        self.destination = []
         self.selected = False
         self.moving = False
         self.harvesting = False
@@ -21,10 +23,14 @@ class Unit(bge.types.KX_GameObject):
         bge.c.game.units.append(self)
 
     def act(self):
+        x = self.worldPosition[0]
+        y = self.worldPosition[1]
         if self.moving:
-            self.move()
+            self.move(x, y)
         if self.harvesting:
-            self.harvest()
+            self.harvest(x, y)
+        else:
+            pass
 
     def move(self, x, y):
         """not using the blender sensors and logic brick, thats the python way bitch! :P"""
@@ -33,20 +39,28 @@ class Unit(bge.types.KX_GameObject):
             pos = self.getAngledPoint(angle, self.speed, x, y)
             self.worldPosition = [pos[0], pos[1], self.position[2]]
             dist = self.calcDistance(x, y, self.destination[0], self.destination[1])
-            # if self.selected:
-            # self.circle.worldPosition.x = pos[0]
-            # self.circle.worldPosition.y = pos[1]
-            # self.circle.worldPosition.z = self.position[2]
             if dist < 0.2:
                 self.position = self.destination
                 self.destination = []
                 self.moving = False
 
-    def harvest(self):
-        dist = self.calcDistance(x, y, self.destination[0], self.destination[1])
-        if self.worldPosition != 0:
-            pass
-
+    def harvest(self, x, y):
+        harv_spot = self.calcDistance(x, y, self.destination[0], self.destination[1])
+        if harv_spot > 2:
+            self.move(x, y)
+            print('ok')
+        elif self.harv_chrono != 140:
+            print('ok')
+            self.harv_chrono += 1
+        elif self.harv_chrono == 140:
+            if self.destination == self.harv_dest:
+                self.harv_mine.material -= 10
+                self.destination = bge.c.game.civilisation.buildings[0].worldPosition  # hard codded, TODO
+                self.harv_chrono = 0
+            elif self.destination != self.harv_dest:
+                bge.c.game.civilisation.gold += 10  # hard codded, TODO
+                self.destination = self.harv_dest
+                self.harv_chrono = 0
 
 
     def getAngledPoint(self, angle, longueur, cx, cy):

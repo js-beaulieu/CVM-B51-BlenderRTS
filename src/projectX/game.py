@@ -10,6 +10,7 @@ class Game():
 
     def __init__(self):
         self.civilisations = []
+        self.mines = []
         self.units = []
         self.selected_units = []
         self.moving_units = []
@@ -22,12 +23,7 @@ class Game():
         Mine(scene.addObject('Mine', scene.objects['SpawnM']))
 
     def game_update(self):
-        if self.moving_units:
-            for obj in self.moving_units:
-                x = obj.worldPosition[0]
-                y = obj.worldPosition[1]
-                obj.move(x, y)
-                if not obj.moving:
-                    self.moving_units.remove(obj)
+        for obj in self.units:
+            obj.act()
 
 
