@@ -98,7 +98,9 @@ class Mouse(object):
 
         # Handling the click
         if self.key["LeftClick"] == logic.KX_INPUT_JUST_ACTIVATED:
-            self.parent.selectedUnits = []
+            for obj in bge.c.game.selected_units:
+                obj.selected = False
+            bge.c.game.selected_units = []
             self.x1 = mouse_pos.hitPosition[0]
             self.y1 = mouse_pos.hitPosition[1]
 
@@ -122,24 +124,30 @@ class Mouse(object):
         """Handling right click actions."""
         if self.key["RightClick"] == logic.KX_INPUT_JUST_ACTIVATED:
             if bge.c.game.selected_units:
-                if isinstance(mouse_pos.hitObject, Mine):
+                if isinstance(mouse_pos.hitObject, Unit):
+                    for obj in bge.c.game.selected_units:
+                        # print("ok")
+                        obj.target = mouse_pos.hitObject
+                        obj.destination = mouse_pos.hitObject.worldPosition
+                        obj.attacking = True
+                elif isinstance(mouse_pos.hitObject, Mine):
                     for obj in bge.c.game.selected_units:
                         obj.harv_mine = mouse_pos.hitObject
-                        obj.harvesting = True
                         obj.harv_dest = mouse_pos.hitObject.worldPosition
                         obj.destination = mouse_pos.hitObject.worldPosition
-                        print(obj.destination)
+                        obj.harvesting = True
                 else:
                     dist = 0
                     for obj in self.parent.game.selected_units:
                         if obj.harvesting:
                             obj.harvesting = False
+                        #if obj.attacking:
+                            #obj.attacking = False
                         obj.destination = [mouse_pos.hitPosition[0] + dist,
                                            mouse_pos.hitPosition[1],
                                            obj.worldPosition[2]]
                         dist += 0.7
                         if not obj.moving:
-                            self.parent.game.moving_units.append(obj)
                             obj.moving = True
 
     ############################################################################

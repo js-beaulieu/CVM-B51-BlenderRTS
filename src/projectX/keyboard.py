@@ -48,5 +48,7 @@ class Keyboard(object):
         if key["X"] == logic.KX_INPUT_JUST_ACTIVATED:
             bge.c.game.civilisation.buildings[0].create_unit()
         if key["Z"] == logic.KX_INPUT_JUST_ACTIVATED:
-            print(bge.c.game.selected_units)
+            for obj in bge.c.game.bullets:
+                print(obj.id_nb)
+            # print(bge.c.game.selected_units)
             

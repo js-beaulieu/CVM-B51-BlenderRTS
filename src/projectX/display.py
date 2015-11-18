@@ -10,13 +10,13 @@ class MainDisplay(bgui.bge_utils.Layout):
 
         self.stats = False
 
-        self.frame = bgui.Frame(self, border=1, size=[1, 0.2], pos=[0, 0])
+        self.frame = bgui.Frame(self, border=1, size=[0.2, 1], pos=[0.8, 0])
         self.frame.colors = [(0, 0, 0, 0.4) for i in range(4)]
 
         # self.constBtn = bgui.ImageButton(self.frame, default_image=('build.png', 1, 1, 1, 1), hover_image=('buildH.png', 1, 1, 1, 1),
         # click_image=('buildH.png', 1, 1, 1, 1), size=[0.1, 0.7], pos=[0.01, 0.05])
 
-        self.background = bgui.Image(self.frame, 'wood.jpg', size=[1, 1], pos=[0, 0])
+        self.background = bgui.Image(self.frame, 'sidebar.png', size=[1, 1], pos=[0, 0])
 
         self.goldLbl = bgui.Label(self.frame, text='Gold = ' + str(bge.c.game.civilisation.gold),
         pt_size=24, color=(0,0,0,1), pos=[0.8, 0.8])

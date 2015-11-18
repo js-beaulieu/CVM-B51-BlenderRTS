@@ -12,8 +12,9 @@ class Game():
         self.civilisations = []
         self.mines = []
         self.units = []
+        self.dead_units = []
         self.selected_units = []
-        self.moving_units = []
+        self.bullets = []
 
     def game_init(self):
         scene = bge.logic.getCurrentScene()
@@ -23,7 +24,17 @@ class Game():
         Mine(scene.addObject('Mine', scene.objects['SpawnM']))
 
     def game_update(self):
+        if len(self.dead_units) > 0:
+            for obj in self.dead_units:
+                self.units.remove(obj)
+                self.dead_units.remove(obj)
+                obj.endObject()
+            self.dead_units = []
         for obj in self.units:
             obj.act()
+        if len(self.bullets) > 0:
+            for obj in self.bullets:
+                obj.trajectory(obj.worldPosition[0], obj.worldPosition[1])
+
 
 
