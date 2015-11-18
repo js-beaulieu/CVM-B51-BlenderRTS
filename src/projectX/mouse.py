@@ -126,7 +126,7 @@ class Mouse(object):
             if bge.c.game.selected_units:
                 if isinstance(mouse_pos.hitObject, Unit):
                     for obj in bge.c.game.selected_units:
-                        # print("ok")
+                        print("ok")
                         obj.target = mouse_pos.hitObject
                         obj.destination = mouse_pos.hitObject.worldPosition
                         obj.attacking = True

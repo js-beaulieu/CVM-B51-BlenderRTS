@@ -29,7 +29,10 @@ class Unit(bge.types.KX_GameObject):
 
     def act(self):
         """param: self"""
-        if self.selected:
+        if self.hp <= 0:
+            bge.c.game.units.remove(self)
+            self.endObject()
+        elif self.selected:
             self.children['Select_Circle'].visible = True
         else:
             self.children['Select_Circle'].visible = False

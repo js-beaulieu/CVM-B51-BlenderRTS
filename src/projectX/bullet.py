@@ -20,32 +20,30 @@ class Bullet(bge.types.KX_GameObject):
     
     def trajectory(self, x, y):
         """param: self, self.worldPosition x, self.worldPosition y"""
-        if self.target in bge.c.game.dead_units:
-            bge.c.game.bullets.remove(self)
-            self.endObject()
-        else:
+        if self.target.hp > 0:
             angle = self.calcAngle(x, y, self.destination[0], self.destination[1])
             pos = self.getAngledPoint(angle, self.speed, x, y)
             self.worldPosition = [pos[0], pos[1], self.worldPosition[2]]
             dist = self.calcDistance(x, y, self.destination[0], self.destination[1])
             if dist < 0.2:
                 self.target.hp -= self.dmg
-                self.position = self.destination
                 if self.target.hp <= 0:
-                    bge.c.game.dead_units.append(self.target)
                     for obj in bge.c.game.units:
                         if obj.attacking:
-                            if obj.target in bge.c.game.dead_units:
-                                print(self.target.id_nb)
+                            if obj.target == self.target:
                                 obj.target = None
                                 obj.attacking = False
                     for obj in bge.c.game.bullets:
-                        if obj.target in bge.c.game.dead_units:
+                        if obj.target == self.target:
                             bge.c.game.bullets.remove(obj)
                             obj.endObject()
+                            print(self.target.id_nb)
                 else:
                     bge.c.game.bullets.remove(self)
                     self.endObject()
+        else:
+            bge.c.game.bullets.remove(self)
+            self.endObject()
 
     def getAngledPoint(self, angle, longueur, cx, cy):
         """param: self, self.calcAngle(), self.speed, self.worldPosition x, self.worldPosition y"""
