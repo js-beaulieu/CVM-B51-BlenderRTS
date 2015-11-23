@@ -10,7 +10,7 @@ class Bullet(bge.types.KX_GameObject):
     def __init__(self, parent):  # parent is the old bge object
         self.owner = None
         self.dmg = 15
-        self.speed = 0.2
+        self.speed = 0.8
         self.target = None
         self.worldPosition[2] += 0.5
         self.id_nb = bge.c.frame
@@ -25,7 +25,7 @@ class Bullet(bge.types.KX_GameObject):
             pos = self.getAngledPoint(angle, self.speed, x, y)
             self.worldPosition = [pos[0], pos[1], self.worldPosition[2]]
             dist = self.calcDistance(x, y, self.destination[0], self.destination[1])
-            if dist < 0.2:
+            if dist < 0.9:
                 self.target.hp -= self.dmg
                 if self.target.hp <= 0:
                     for obj in bge.c.game.units:

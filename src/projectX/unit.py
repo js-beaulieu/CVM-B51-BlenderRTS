@@ -9,59 +9,59 @@ but add a little twist to it XD (fonctions and variables)"""
 class Unit(bge.types.KX_GameObject):
 
     def __init__(self, parent):  # parent is the old bge object
+        self.state = 1  # 1 = standing, 2 = moving, 3 = attacking, 4 = harvesting
         self.dmg = 15
         self.hp = 45
-        self.field = 10
+        self.field = 20
         self.speed = 0.1
         self.att_spd = 80
         self.harv_chrono = 0
         self.harv_dest = []
+        self.base_dest = []
         self.harv_mine = None
         self.att_chrono = 0
         self.destination = []
         self.selected = False
-        self.moving = False
-        self.harvesting = False
-        self.attacking = False
-        self.standing = False
         self.id_nb = "Unit_" + str(bge.c.game.civilisation.buildings[0].count)
-        bge.c.game.units.append(self)
+        
+    def unit_init(self, owner):
+        self.owner = owner
 
     def act(self):
         """param: self"""
-        if self.hp <= 0:
-            bge.c.game.units.remove(self)
-            self.endObject()
-        elif self.selected:
+        if self.selected:
             self.children['Select_Circle'].visible = True
         else:
             self.children['Select_Circle'].visible = False
         x = self.worldPosition[0]
         y = self.worldPosition[1]
-        if self.moving:
+        if self.state == 1:
+            self.stand()
+        if self.state == 2:
             self.move(x, y)
-        if self.attacking and self.target:
+        if self.state == 3:
             self.attack(x, y)
-        if self.harvesting:
+        if self.state == 4:
             self.harvest(x, y)
-        else:
-            pass
+        if self.hp <= 0:
+            self.owner.units.remove(self)
+            self.endObject()
 
     def move(self, x, y):
         """param: self, self.worldPosition x, self.worldPosition y"""
-        if self.destination:
-            angle = self.calcAngle(x, y, self.destination[0], self.destination[1])
-            pos = self.getAngledPoint(angle, self.speed, x, y)
-            self.worldPosition = [pos[0], pos[1], self.position[2]]
-            dist = self.calcDistance(x, y, self.destination[0], self.destination[1])
-            if dist < 0.2:
-                self.position = self.destination
-                self.destination = []
-                self.moving = False
+        angle = self.calcAngle(x, y, self.destination[0], self.destination[1])
+        pos = self.getAngledPoint(angle, self.speed, x, y)
+        self.worldPosition = [pos[0], pos[1], self.position[2]]
+        dist = self.calcDistance(x, y, self.destination[0], self.destination[1])
+        if dist < 0.2:
+            self.position = self.destination
+            self.destination = []
+            self.moving = False
+            self.state = 1
 
     def attack(self, x, y):
         """param: self, self.worldPosition x, self.worldPosition y"""
-        if self.target:
+        if self.target.hp > 0:
             self.destination = self.target.worldPosition
             dist = self.calcDistance(x, y, self.destination[0], self.destination[1])
             if dist > self.field:
@@ -76,6 +76,8 @@ class Unit(bge.types.KX_GameObject):
                 pew.target = self.target
                 pew.traject_init()
                 self.att_chrono = 0
+        else:
+            self.state = 1
 
     def harvest(self, x, y):
         """param: self, self.worldPosition x, self.worldPosition y"""
@@ -87,12 +89,23 @@ class Unit(bge.types.KX_GameObject):
         elif self.harv_chrono == 140:
             if self.destination == self.harv_dest:
                 self.harv_mine.material -= 10
-                self.destination = bge.c.game.civilisation.buildings[0].worldPosition  # hard codded, TODO
+                self.destination = self.base_dest
                 self.harv_chrono = 0
             elif self.destination != self.harv_dest:
                 bge.c.game.civilisation.gold += 10  # hard codded, TODO
                 self.destination = self.harv_dest
                 self.harv_chrono = 0
+
+    def stand(self):
+        for civ in bge.c.game.civilisations:
+            if self.owner != civ:
+                for obj in civ.units:
+                    dist = self.getDistanceTo(obj)
+                    if dist < self.field:
+                        self.target = obj
+                        self.destination = obj.worldPosition
+                        self.state = 3
+        
 
     def getAngledPoint(self, angle, longueur, cx, cy):
         """param: self, self.calcAngle(), self.speed, self.worldPosition x, self.worldPosition y"""

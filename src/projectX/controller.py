@@ -22,13 +22,12 @@ def main(cont):
     """called once by the "Always" sensor named InitGame,
     will remove sensors if we have time its kinda complicated"""
     bge.c = Controller()
-    bge.c.game = Game()
+    bge.c.game = Game(2)
     bge.c.game.game_init()
     bge.c.display = bgui.bge_utils.System('../../themes/default')
     bge.c.display.load_layout(MainDisplay, None)
     render.showMouse(True)
     render.setMousePosition(400, 400)
-    # cont.sensors["Update"].active = True
 
 
 def control_update(cont):
@@ -36,8 +35,6 @@ def control_update(cont):
     this is the main loop"""
     bge.c.frame += 1
     bge.c.game.game_update()
-    #bge.c.display.update()
-    #bge.c.display.goldLbl.text='Gold = ' + str(bge.c.game.civilisation.gold)
     bge.c.display.run()
 
     if bge.logic.mouse.events:

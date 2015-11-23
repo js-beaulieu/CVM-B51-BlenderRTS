@@ -88,13 +88,14 @@ class Mouse(object):
             render.drawLine((self.x2, self.y2, z), (self.x1, self.y2, z), (1, 0, 0))
 
         def unit_select(scene, mouse_pos):
-            for obj in bge.c.game.units:
-                x = obj.worldPosition[0]
-                y = obj.worldPosition[1]
+            for civ in bge.c.game.civilisations:
+                for obj in civ.units:
+                    x = obj.worldPosition[0]
+                    y = obj.worldPosition[1]
 
-                if x > self.x1 and y > self.y1 and x < self.x2 and y < self.y2:    # si a linterieur du rectangle
-                    self.parent.game.selected_units.append(obj)
-                    obj.selected = True
+                    if x > self.x1 and y > self.y1 and x < self.x2 and y < self.y2:    # si a linterieur du rectangle
+                        self.parent.game.selected_units.append(obj)
+                        obj.selected = True
 
         # Handling the click
         if self.key["LeftClick"] == logic.KX_INPUT_JUST_ACTIVATED:
@@ -126,29 +127,29 @@ class Mouse(object):
             if bge.c.game.selected_units:
                 if isinstance(mouse_pos.hitObject, Unit):
                     for obj in bge.c.game.selected_units:
-                        print("ok")
-                        obj.target = mouse_pos.hitObject
-                        obj.destination = mouse_pos.hitObject.worldPosition
-                        obj.attacking = True
+                        if obj.owner != mouse_pos.hitObject.owner:
+                            obj.target = mouse_pos.hitObject
+                            obj.destination = mouse_pos.hitObject.worldPosition
+                            obj.state = 3
+                            
                 elif isinstance(mouse_pos.hitObject, Mine):
                     for obj in bge.c.game.selected_units:
                         obj.harv_mine = mouse_pos.hitObject
                         obj.harv_dest = mouse_pos.hitObject.worldPosition
+                        for civ in bge.c.game.civilisations:
+                            if civ == obj.owner:
+                                obj.base_dest = civ.buildings[0].worldPosition
                         obj.destination = mouse_pos.hitObject.worldPosition
-                        obj.harvesting = True
+                        obj.state = 4
+                        
                 else:
                     dist = 0
                     for obj in self.parent.game.selected_units:
-                        if obj.harvesting:
-                            obj.harvesting = False
-                        #if obj.attacking:
-                            #obj.attacking = False
                         obj.destination = [mouse_pos.hitPosition[0] + dist,
                                            mouse_pos.hitPosition[1],
                                            obj.worldPosition[2]]
                         dist += 0.7
-                        if not obj.moving:
-                            obj.moving = True
+                        obj.state = 2
 
     ############################################################################
     # Scroll wheel                                                             #

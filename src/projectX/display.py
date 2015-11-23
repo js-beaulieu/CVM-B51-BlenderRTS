@@ -2,7 +2,7 @@ import bge
 import bgui
 import bgui.bge_utils
 
-COUNT_FONT = "./ui/abril.otf"
+COUNT_FONT = bge.logic.expandPath("//ui//abril.otf")
 COUNT_COLOR = (255, 255, 255, 1)
 COUNT_PT_SIZE = 12
 
@@ -17,36 +17,36 @@ class MainDisplay(bgui.bge_utils.Layout):
         self.panel.colors = [(0, 0, 0, 0.4) for i in range(4)]
 
         # line 1 - Menu & Stats
-        bgui.Image(self.panel, './ui/Panel.png', size=[1, 1], pos=[0, 0])
-        btn_menu = bgui.ImageButton(self.panel, default_image=('./ui/MenuNormal.png', 0, 0, 1, 1),
-                                    hover_image=('./ui/MenuHover.png', 0, 0, 1, 1),
-                                    click_image=('./ui/MenuClicked.png', 0, 0, 1, 1),
+        bgui.Image(self.panel, bge.logic.expandPath('//ui//Panel.png'), size=[1, 1], pos=[0, 0])
+        btn_menu = bgui.ImageButton(self.panel, default_image=(bge.logic.expandPath('//ui//MenuNormal.png'), 0, 0, 1, 1),
+                                    hover_image=(bge.logic.expandPath('//ui//MenuHover.png'), 0, 0, 1, 1),
+                                    click_image=(bge.logic.expandPath('//ui//MenuClicked.png'), 0, 0, 1, 1),
                                     size=[0.42, 0.065], pos=[0.12, 0.01])
         btn_menu.on_click = self.menu_panel
-        btn_stats = bgui.ImageButton(self.panel, default_image=('./ui/StatsNormal.png', 0, 0, 1, 1),
-                                     hover_image=('./ui/StatsHover.png', 0, 0, 1, 1),
-                                     click_image=('./ui/StatsClicked.png', 0, 0, 1, 1),
+        btn_stats = bgui.ImageButton(self.panel, default_image=(bge.logic.expandPath('//ui//StatsNormal.png'), 0, 0, 1, 1),
+                                     hover_image=(bge.logic.expandPath('//ui//StatsHover.png'), 0, 0, 1, 1),
+                                     click_image=(bge.logic.expandPath('//ui//StatsClicked.png'), 0, 0, 1, 1),
                                      size=[0.42, 0.065], pos=[0.56, 0.01])
         btn_stats.on_click = self.stats_panel
 
         # line 2 - XP
-        bgui.Image(self.panel, './ui/ResXP.png', size=[0.85, 0.065], pos=[0.12, 0.08])
+        bgui.Image(self.panel, bge.logic.expandPath('//ui//ResXP.png'), size=[0.85, 0.065], pos=[0.12, 0.08])
         self.label_xp = bgui.Label(self.panel, text=str(42),  # WRONG
                                    pt_size=COUNT_PT_SIZE, font=COUNT_FONT, color=COUNT_COLOR, pos=[0.31, 0.105])
 
         # line 3 - Gold + Wood
-        bgui.Image(self.panel, './ui/ResGold.png', size=[0.42, 0.065], pos=[0.12, 0.15])
+        bgui.Image(self.panel, bge.logic.expandPath('//ui//ResGold.png'), size=[0.42, 0.065], pos=[0.12, 0.15])
         self.label_gold = bgui.Label(self.panel, text=str(bge.c.game.civilisation.gold),
                                      pt_size=COUNT_PT_SIZE, font=COUNT_FONT, color=COUNT_COLOR, pos=[0.31, 0.175])
-        bgui.Image(self.panel, './ui/ResWood.png', size=[0.42, 0.065], pos=[0.56, 0.15])
+        bgui.Image(self.panel, bge.logic.expandPath('//ui//ResWood.png'), size=[0.42, 0.065], pos=[0.56, 0.15])
         self.label_wood = bgui.Label(self.panel, text=str(bge.c.game.civilisation.gold),  # WRONG
                                      pt_size=COUNT_PT_SIZE, font=COUNT_FONT, color=COUNT_COLOR, pos=[0.58, 0.175])
 
         # line 4 - Crystal + Petrol
-        bgui.Image(self.panel, './ui/ResCrystal.png', size=[0.42, 0.065], pos=[0.12, 0.22])
+        bgui.Image(self.panel, bge.logic.expandPath('//ui//ResCrystal.png'), size=[0.42, 0.065], pos=[0.12, 0.22])
         self.label_crystal = bgui.Label(self.panel, text=str(bge.c.game.civilisation.gold),  # WRONG
                                         pt_size=COUNT_PT_SIZE, font=COUNT_FONT, color=COUNT_COLOR, pos=[0.31, 0.245])
-        bgui.Image(self.panel, './ui/ResPetrol.png', size=[0.42, 0.065], pos=[0.56, 0.22])
+        bgui.Image(self.panel, bge.logic.expandPath('//ui//ResPetrol.png'), size=[0.42, 0.065], pos=[0.56, 0.22])
         self.label_petrol = bgui.Label(self.panel, text=str(bge.c.game.civilisation.gold),  # WRONG
                                        pt_size=COUNT_PT_SIZE, font=COUNT_FONT, color=COUNT_COLOR, pos=[0.58, 0.245])
 

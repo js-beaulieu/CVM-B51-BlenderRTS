@@ -23,6 +23,7 @@ class Keyboard(object):
             "S": logic.keyboard.events[events.SKEY],
             "D": logic.keyboard.events[events.DKEY],
             "X": logic.keyboard.events[events.XKEY],
+            "C": logic.keyboard.events[events.CKEY],
             "Z": logic.keyboard.events[events.ZKEY]
         }
 
@@ -46,9 +47,11 @@ class Keyboard(object):
 
         # keyboard shortcuts
         if key["X"] == logic.KX_INPUT_JUST_ACTIVATED:
-            bge.c.game.civilisation.buildings[0].create_unit()
+            bge.c.game.civilisations[0].buildings[0].create_unit()
+        if key["C"] == logic.KX_INPUT_JUST_ACTIVATED:
+            bge.c.game.civilisations[1].buildings[0].create_unit()
         if key["Z"] == logic.KX_INPUT_JUST_ACTIVATED:
-            for obj in bge.c.game.bullets:
-                print(obj.id_nb)
+            mouse_pos = cont.sensors["Mouse_Pos"]
+            print(mouse_pos.hitPosition)
             # print(bge.c.game.selected_units)
             

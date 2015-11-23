@@ -8,9 +8,12 @@ from mine import *
 
 class Game():
 
-    def __init__(self):
+    def __init__(self, players):
+        """param: self, number of players"""
+        self.players = players
         self.civilisations = []
         self.mines = []
+        self.buildings = []
         self.units = []
         self.dead_units = []
         self.selected_units = []
@@ -18,17 +21,19 @@ class Game():
 
     def game_init(self):
         scene = bge.logic.getCurrentScene()
-        self.civilisation = Civilisation()
-        self.civilisations.append(self.civilisation)
-        self.civilisation.civ_init()
+        for i in range(self.players):
+            self.civilisation = Civilisation(i)
+            self.civilisations.append(self.civilisation)
+            self.civilisation.civ_init()
         Mine(scene.addObject('Mine', scene.objects['SpawnM']))
 
     def game_update(self):
         if len(self.bullets) > 0:
             for obj in self.bullets:
                 obj.trajectory(obj.worldPosition[0], obj.worldPosition[1])
-        for obj in self.units:
-            obj.act()
+        for civ in self.civilisations:
+            for obj in civ.units:
+                obj.act()
 
 
 
