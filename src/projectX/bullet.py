@@ -64,3 +64,12 @@ class Bullet(bge.types.KX_GameObject):
         dy = abs(y2-y1)**2
         distance = math.sqrt(dx + dy)
         return distance
+
+
+class Zapper(Bullet):
+
+    def __init__(self, parent):
+        super(Zapper, self).__init__(parent)
+        self.field = 10  # TODO AoE
+        self.dmg = 25
+        self.speed = 0.7

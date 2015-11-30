@@ -1,6 +1,8 @@
 from bge import logic, events, render
 from unit import *
 from mine import *
+from building import *
+from ressource import *
 
 ZOOM_STEPS = 5
 ZOOM_MIN = 10
@@ -66,13 +68,13 @@ class Mouse(object):
         camZ = cam.position[2]
 
         if side == 1:
-            cam.position = [camX - SCROLL_SPEED, camY - SCROLL_SPEED, camZ]
+            cam.position = [camX - SCROLL_SPEED, camY, camZ]
         elif side == 2:
-            cam.position = [camX - SCROLL_SPEED, camY + SCROLL_SPEED, camZ]
+            cam.position = [camX, camY + SCROLL_SPEED, camZ]
         elif side == 3:
-            cam.position = [camX + SCROLL_SPEED, camY + SCROLL_SPEED, camZ]
+            cam.position = [camX + SCROLL_SPEED, camY, camZ]
         elif side == 4:
-            cam.position = [camX + SCROLL_SPEED, camY - SCROLL_SPEED, camZ]
+            cam.position = [camX, camY - SCROLL_SPEED, camZ]
 
     ############################################################################
     # Left click                                                               #
@@ -97,11 +99,27 @@ class Mouse(object):
                         self.parent.game.selected_units.append(obj)
                         obj.selected = True
 
+            if isinstance(mouse_pos.hitObject, Unit):
+                self.parent.game.selected_units.append(mouse_pos.hitObject)
+                mouse_pos.hitObject.selected = True
+                bge.c.ui_panel = 2
+
+            if isinstance (mouse_pos.hitObject, Building):
+                self.parent.game.selected_units.append(mouse_pos.hitObject)
+                bge.c.ui_panel = 1
+
+            if isinstance (mouse_pos.hitObject, Barrack):
+                self.parent.game.selected_units.append(mouse_pos.hitObject)
+                bge.c.ui_panel = 3
+
         # Handling the click
         if self.key["LeftClick"] == logic.KX_INPUT_JUST_ACTIVATED:
-            for obj in bge.c.game.selected_units:
-                obj.selected = False
-            bge.c.game.selected_units = []
+            print("click")
+            if bge.c.button_clicked == 0:
+                print("click2")
+                for obj in bge.c.game.selected_units:
+                    obj.selected = False
+                bge.c.game.selected_units = []
             self.x1 = mouse_pos.hitPosition[0]
             self.y1 = mouse_pos.hitPosition[1]
 
@@ -131,8 +149,15 @@ class Mouse(object):
                             obj.target = mouse_pos.hitObject
                             obj.destination = mouse_pos.hitObject.worldPosition
                             obj.state = 3
+
+                elif isinstance(mouse_pos.hitObject, Building) or isinstance(mouse_pos.hitObject, Barrack):
+                    for obj in bge.c.game.selected_units:
+                        if obj.owner != mouse_pos.hitObject.owner:
+                            obj.target = mouse_pos.hitObject
+                            obj.destination = mouse_pos.hitObject.worldPosition
+                            obj.state = 3
                             
-                elif isinstance(mouse_pos.hitObject, Mine):
+                elif isinstance(mouse_pos.hitObject, Ressource):
                     for obj in bge.c.game.selected_units:
                         obj.harv_mine = mouse_pos.hitObject
                         obj.harv_dest = mouse_pos.hitObject.worldPosition

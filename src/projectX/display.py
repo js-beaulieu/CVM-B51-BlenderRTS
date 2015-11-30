@@ -12,7 +12,7 @@ class MainDisplay(bgui.bge_utils.Layout):
     def __init__(self, sys, data):
         # Initializing the side panel
         super().__init__(sys, data)
-        self.stats = False
+        self.overlay = False
         self.panel = bgui.Frame(self, border=1, size=[0.2, 1], pos=[0.8, 0])
         self.panel.colors = [(0, 0, 0, 0.4) for i in range(4)]
 
@@ -39,12 +39,12 @@ class MainDisplay(bgui.bge_utils.Layout):
         self.label_gold = bgui.Label(self.panel, text=str(bge.c.game.civilisation.gold),
                                      pt_size=COUNT_PT_SIZE, font=COUNT_FONT, color=COUNT_COLOR, pos=[0.31, 0.175])
         bgui.Image(self.panel, bge.logic.expandPath('//ui//ResWood.png'), size=[0.42, 0.065], pos=[0.56, 0.15])
-        self.label_wood = bgui.Label(self.panel, text=str(bge.c.game.civilisation.gold),  # WRONG
+        self.label_wood = bgui.Label(self.panel, text=str(bge.c.game.civilisation.wood),  # WRONG
                                      pt_size=COUNT_PT_SIZE, font=COUNT_FONT, color=COUNT_COLOR, pos=[0.58, 0.175])
 
         # line 4 - Crystal + Petrol
         bgui.Image(self.panel, bge.logic.expandPath('//ui//ResCrystal.png'), size=[0.42, 0.065], pos=[0.12, 0.22])
-        self.label_crystal = bgui.Label(self.panel, text=str(bge.c.game.civilisation.gold),  # WRONG
+        self.label_crystal = bgui.Label(self.panel, text=str(bge.c.game.civilisation.crystal),  # WRONG
                                         pt_size=COUNT_PT_SIZE, font=COUNT_FONT, color=COUNT_COLOR, pos=[0.31, 0.245])
         bgui.Image(self.panel, bge.logic.expandPath('//ui//ResPetrol.png'), size=[0.42, 0.065], pos=[0.56, 0.22])
         self.label_petrol = bgui.Label(self.panel, text=str(bge.c.game.civilisation.gold),  # WRONG
@@ -63,10 +63,35 @@ class MainDisplay(bgui.bge_utils.Layout):
     def update(self):
         # TODO - update all label references in bge.c.game
         self.label_xp.text = str(42)  # line 34
-        self.label_gold.text = str(bge.c.game.civilisation.gold)
-        self.label_wood.text = str(bge.c.game.civilisation.gold)  # line 42
-        self.label_crystal.text = str(bge.c.game.civilisation.gold)  # line 47
+        self.label_gold.text = str(bge.c.game.civilisations[0].gold)
+        self.label_wood.text = str(bge.c.game.civilisations[0].wood)  # line 42
+        self.label_crystal.text = str(bge.c.game.civilisations[0].crystal)  # line 47
         self.label_petrol.text = str(bge.c.game.civilisation.gold)  # line 50
+        if bge.c.ui_panel == 1:
+            self.remove_all()
+            bge.c.display.add_overlay(buildDisplay, None)
+            self.overlay = True
+            bge.c.ui_panel = 0
+        elif bge.c.ui_panel == 2:
+            self.remove_all()
+            bge.c.display.add_overlay(scavengerDisplay, None)
+            self.overlay = True
+            bge.c.ui_panel = 0
+        elif bge.c.ui_panel == 3:
+            self.remove_all()
+            bge.c.display.add_overlay(barrackDisplay, None)
+            self.overlay = True
+            bge.c.ui_panel = 0
+        elif bge.c.ui_panel == 4:
+            self.remove_all()
+            self.overlay = False
+            bge.c.ui_panel = 0
+
+    def remove_all(self):
+        if self.overlay:
+            bge.c.display.remove_overlay(buildDisplay)
+            bge.c.display.remove_overlay(scavengerDisplay)
+            bge.c.display.remove_overlay(barrackDisplay)
 
 
 class SubDisplay(bgui.bge_utils.Layout):
@@ -82,3 +107,79 @@ class SubDisplay(bgui.bge_utils.Layout):
 
     def update(self):
         self.goldLbl.text = 'Gold = ' + str(bge.c.game.civilisation.gold)
+
+
+class buildDisplay(bgui.bge_utils.Layout):
+
+    def __init__(self, sys, data):
+        super().__init__(sys, data)
+
+        self.buildFrame = bgui.Frame(self, border=0, size=[0.2, 0.4], pos=[0.81875, 0.32])
+        self.buildFrame.colors = [(0.0, 0.0, 0.0, 0.0) for i in range(4)]
+        self.btn_create = bgui.FrameButton(self.buildFrame, text='Unit 1', size=[0.2, 0.15], pos=[0.025, 0.8])
+        self.btn_create.label.pt_size = 16
+        self.btn_create.on_click = self.create
+
+    def update(self):
+        pass
+
+    def create(self, widget):
+        bge.c.game.selected_units[0].create_harvester()
+        bge.c.ui_panel = 1
+        bge.c.button_clicked = 3
+
+
+class scavengerDisplay(bgui.bge_utils.Layout):
+
+    def __init__(self, sys, data):
+        super().__init__(sys, data)
+
+        self.scavFrame = bgui.Frame(self, border=0, size=[0.2, 0.4], pos=[0.81875, 0.32])
+        self.scavFrame.colors = [(0.0, 0.0, 0.0, 0.0) for i in range(4)]
+        self.btn_build = bgui.FrameButton(self.scavFrame, text='main', size=[0.2, 0.15], pos=[0.025, 0.8])
+        self.btn_build.label.pt_size = 16
+        self.btn_build.on_click = self.build
+        self.btn_barrack = bgui.FrameButton(self.scavFrame, text='barrack', size=[0.2, 0.15], pos=[0.25, 0.8])
+        self.btn_barrack.label.pt_size = 16
+        self.btn_barrack.on_click = self.barrack
+
+    def update(self):
+        pass
+
+    def build(self, widget):
+        bge.c.game.selected_units[0].owner.create_building()
+        bge.c.ui_panel = 2
+        bge.c.button_clicked = 3
+
+    def barrack(self, widget):
+        bge.c.game.selected_units[0].owner.create_barrack(1)
+        bge.c.ui_panel = 2
+        bge.c.button_clicked = 3
+
+
+class barrackDisplay(bgui.bge_utils.Layout):
+
+    def __init__(self, sys, data):
+        super().__init__(sys, data)
+
+        self.barFrame = bgui.Frame(self, border=0, size=[0.2, 0.4], pos=[0.81875, 0.32])
+        self.barFrame.colors = [(0.0, 0.0, 0.0, 0.0) for i in range(4)]
+        self.btn_create_mman = bgui.FrameButton(self.barFrame, text='Marksman', size=[0.2, 0.15], pos=[0.025, 0.8])
+        self.btn_create_mman.label.pt_size = 16
+        self.btn_create_mman.on_click = self.create_mman
+        self.btn_create_shocker = bgui.FrameButton(self.barFrame, text='Shocker', size=[0.2, 0.15], pos=[0.25, 0.8])
+        self.btn_create_shocker.label.pt_size = 16
+        self.btn_create_shocker.on_click = self.create_shocker
+
+    def update(self):
+        pass
+
+    def create_mman(self, widget):
+        bge.c.game.selected_units[0].create_mman()
+        bge.c.ui_panel = 3
+        bge.c.button_clicked = 3
+
+    def create_shocker(self, widget):
+        bge.c.game.selected_units[0].create_shocker()
+        bge.c.ui_panel = 3
+        bge.c.button_clicked = 3
