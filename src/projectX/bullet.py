@@ -15,8 +15,27 @@ class Bullet(bge.types.KX_GameObject):
         self.worldPosition[2] += 0.5
         self.id_nb = bge.c.frame
 
-    def traject_init(self):
-        self.destination = self.target.worldPosition
+    def traject_init(self, owner, target, unit):
+        self.destination = target.worldPosition
+        self.target = target
+        self.owner = owner
+        self.unit = unit
+        self.alert()
+
+    def alert(self):
+        x1 = self.target.worldPosition[0]
+        y1 = self.target.worldPosition[1]
+        for civ in bge.c.game.civilisations:
+            if civ != self.owner:
+                for i in civ.units:
+                    for obj in civ.units[i]:
+                        if obj.state == 1:
+                            x2 = obj.worldPosition[0]
+                            y2 = obj.worldPosition[1]
+                            dist = self.calcDistance(x1, y1, x2, y2)
+                            if dist < 10:
+                                obj.target = self.unit
+                                obj.state = 3
     
     def trajectory(self, x, y):
         """param: self, self.worldPosition x, self.worldPosition y"""
@@ -28,16 +47,17 @@ class Bullet(bge.types.KX_GameObject):
             if dist < 0.9:
                 self.target.hp -= self.dmg
                 if self.target.hp <= 0:
-                    for obj in bge.c.game.units:
-                        if obj.attacking:
-                            if obj.target == self.target:
-                                obj.target = None
-                                obj.attacking = False
+                    for i in self.owner.units:
+                        for obj in self.owner.units[i]:
+                            if obj.state == 3:
+                                if obj.target == self.target:
+                                    obj.target = None
+                                    if not obj.owner.computer:
+                                        obj.attacking = False
                     for obj in bge.c.game.bullets:
                         if obj.target == self.target:
                             bge.c.game.bullets.remove(obj)
                             obj.endObject()
-                            print(self.target.id_nb)
                 else:
                     bge.c.game.bullets.remove(self)
                     self.endObject()

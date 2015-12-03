@@ -50,9 +50,9 @@ class Keyboard(object):
 
         # keyboard shortcuts
         if key["X"] == logic.KX_INPUT_JUST_ACTIVATED:
-            bge.c.game.civilisations[0].buildings[0].create_unit()
+            bge.c.game.civilisations[0].buildings[0]["headquarters"].create_unit()
         if key["C"] == logic.KX_INPUT_JUST_ACTIVATED:
-            bge.c.game.civilisations[1].buildings[0].create_unit()
+            bge.c.game.civilisations[1].buildings["headquarters"][0].create_unit()
         if key["B"] == logic.KX_INPUT_JUST_ACTIVATED:
             bge.c.game.civilisations[0].create_building()
         if key["R"] == logic.KX_INPUT_JUST_ACTIVATED:

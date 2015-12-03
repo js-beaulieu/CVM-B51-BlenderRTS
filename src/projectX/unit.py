@@ -2,6 +2,7 @@ import bge
 import math
 from bullet import *
 from ressource import *
+from building import *
 
 """sub-class of a blender game object, keeps all the goodies fonctions of bge KX_GameObject
 but add a little twist to it XD (fonctions and variables)"""
@@ -16,38 +17,14 @@ class Unit(bge.types.KX_GameObject):
         self.field = 5
         self.speed = 0.1
         self.att_spd = 80
-        self.harv_chrono = 0
-        self.harv_dest = []
-        self.base_dest = []
-        self.harv_mine = None
         self.att_chrono = 0
         self.destination = []
         self.selected = False
         self.target = None
         self.id_nb = "Unit_" + str(bge.c.frame)
-        
+
     def unit_init(self, owner):
         self.owner = owner
-
-    def act(self):
-        """param: self"""
-        if self.selected:
-            self.children['Select_Circle'].visible = True
-        else:
-            self.children['Select_Circle'].visible = False
-        x = self.worldPosition[0]
-        y = self.worldPosition[1]
-        if self.state == 1:
-            self.stand()
-        if self.state == 2:
-            self.move(x, y)
-        if self.state == 3:
-            self.attack(x, y)
-        if self.state == 4:
-            self.harvest(x, y)
-        if self.hp <= 0:
-            self.owner.units.remove(self)
-            self.endObject()
 
     def move(self, x, y):
         """param: self, self.worldPosition x, self.worldPosition y"""
@@ -63,57 +40,47 @@ class Unit(bge.types.KX_GameObject):
 
     def attack(self, x, y):
         """param: self, self.worldPosition x, self.worldPosition y"""
-        if self.target.hp > 0:
-            self.destination = self.target.worldPosition
-            dist = self.calcDistance(x, y, self.destination[0], self.destination[1])
-            if dist > self.field:
-                self.move(x, y)
-            elif self.att_chrono != self.att_spd:
-                self.att_chrono += 1
-            elif self.att_chrono == self.att_spd:
-                scene = bge.logic.getCurrentScene()
-                pew = Bullet(scene.addObject('Bullet', self))
-                pew.owner = self
-                bge.c.game.bullets.append(pew)
-                pew.target = self.target
-                pew.traject_init()
-                self.att_chrono = 0
+        if self.target:
+            if self.target.hp > 0:
+                self.destination = self.target.worldPosition
+                dist = self.calcDistance(x, y, self.destination[0], self.destination[1])
+                if dist > self.field:
+                    self.move(x, y)
+                    self.stand()
+                elif self.att_chrono != self.att_spd:
+                    self.att_chrono += 1
+                elif self.att_chrono == self.att_spd:
+                    scene = bge.logic.getCurrentScene()
+                    pew = Bullet(scene.addObject('Bullet', self))
+                    pew.owner = self
+                    bge.c.game.bullets.append(pew)
+                    pew.traject_init(self.owner, self.target, self)
+                    self.att_chrono = 0
+                    self.stand()
+
         else:
             self.state = 1
-
-    def harvest(self, x, y):
-        """param: self, self.worldPosition x, self.worldPosition y"""
-        dist = self.calcDistance(x, y, self.destination[0], self.destination[1])
-        if dist > 2:
-            self.move(x, y)
-        elif self.harv_chrono != 140:
-            self.harv_chrono += 1
-        elif self.harv_chrono == 140:
-            if self.destination == self.harv_dest:
-                self.harv_mine.material -= 10
-                self.destination = self.base_dest
-                self.harv_chrono = 0
-            elif self.destination != self.harv_dest:
-                if isinstance(self.harv_mine, Mine):
-                    self.owner.gold += 10  
-                if isinstance(self.harv_mine, Tree):
-                    self.owner.wood += 10 
-                if isinstance(self.harv_mine, Crystal):
-                    self.owner.crystal += 10
-                    print('ok')
-                self.destination = self.harv_dest
-                self.harv_chrono = 0
 
     def stand(self):
         for civ in bge.c.game.civilisations:
             if self.owner != civ:
-                for obj in civ.units:
-                    dist = self.getDistanceTo(obj)
-                    if dist < self.field:
-                        self.target = obj
-                        self.destination = obj.worldPosition
-                        self.state = 3
-        
+                for i in civ.units:
+                    for obj in civ.units[i]:
+                        dist = self.getDistanceTo(obj)
+                        if dist < self.field:
+                            self.target = obj
+                            self.destination = obj.worldPosition
+                            self.state = 3
+        if not self.target:
+            for civ in bge.c.game.civilisations:
+                if self.owner != civ:
+                    for i in civ.buildings:
+                        for obj in civ.buildings[i]:
+                            dist = self.getDistanceTo(obj)
+                            if dist < self.field:
+                                self.target = obj
+                                self.destination = obj.worldPosition
+                                self.state = 3
 
     def getAngledPoint(self, angle, longueur, cx, cy):
         """param: self, self.calcAngle(), self.speed, self.worldPosition x, self.worldPosition y"""
@@ -135,10 +102,64 @@ class Unit(bge.types.KX_GameObject):
         distance = math.sqrt(dx + dy)
         return distance
 
+
 class Harvester(Unit):
 
     def __init__(self, parent):
         super(Harvester, self).__init__(parent)
+        self.harv_chrono = 0
+        self.harv_dest = []
+        self.base_dest = []
+        self.harv_mine = None
+        self.const_build = None
+
+    def act(self):
+        """param: self"""
+        if self.selected:
+            self.children['Select_Circle'].visible = True
+        else:
+            self.children['Select_Circle'].visible = False
+        x = self.worldPosition[0]
+        y = self.worldPosition[1]
+        if self.state == 1:
+            self.stand()
+        if self.state == 2:
+            self.move(x, y)
+        if self.state == 3:
+            self.attack(x, y)
+        if self.state == 4:
+            self.harvest(x, y)
+        if self.state == 5:
+            self.move(x, y)
+            #if self.const_build.hp == self.const_build.max_hp:
+             #   self.state = 1
+        if self.hp <= 0:
+            if self in self.owner.atk_list:
+                self.owner.atk_list.remove(self)
+            self.owner.units["harvesters"].remove(self)
+            self.endObject()
+
+    def harvest(self, x, y):
+        """param: self, self.worldPosition x, self.worldPosition y"""
+        dist = self.calcDistance(x, y, self.destination[0], self.destination[1])
+        if dist > 2:
+            self.move(x, y)
+        elif self.harv_chrono != 140:
+            self.harv_chrono += 1
+        elif self.harv_chrono == 140:
+            if self.destination == self.harv_dest:
+                self.harv_mine.material -= 10
+                self.destination = self.base_dest
+                self.harv_chrono = 0
+            elif self.destination != self.harv_dest:
+                if isinstance(self.harv_mine, Mine):
+                    self.owner.gold += 10
+                if isinstance(self.harv_mine, Tree):
+                    self.owner.wood += 10
+                if isinstance(self.harv_mine, Crystal):
+                    self.owner.crystal += 10
+                self.destination = self.harv_dest
+                self.harv_chrono = 0
 
 
 class Marksman(Unit):
@@ -147,7 +168,7 @@ class Marksman(Unit):
         super(Marksman, self).__init__(parent)
         self.dmg = 15
         self.hp = 50
-        self.field = 5
+        self.field = 10
         self.speed = 0.1
         self.att_spd = 80
 
@@ -166,13 +187,12 @@ class Marksman(Unit):
         if self.state == 3:
             self.attack(x, y)
         if self.state == 4:
-            self.harvest(x, y)
+            self.state = 1
         if self.hp <= 0:
-            self.owner.units.remove(self)
+            if self in self.owner.atk_list:
+                self.owner.atk_list.remove(self)
+            self.owner.units["marksmans"].remove(self)
             self.endObject()
-
-    def harvest(self, x, y):
-        pass
 
 
 class Shocker(Unit):
@@ -200,18 +220,21 @@ class Shocker(Unit):
         if self.state == 3:
             self.attack(x, y)
         if self.state == 4:
-            self.harvest(x, y)
+            self.state = 1
         if self.hp <= 0:
-            self.owner.units.remove(self)
+            if self in self.owner.atk_list:
+                self.owner.atk_list.remove(self)
+            self.owner.units["shockers"].remove(self)
             self.endObject()
 
     def attack(self, x, y):
         """param: self, self.worldPosition x, self.worldPosition y"""
-        if self.target.hp > 0:
+        if self.target and self.target.hp > 0:
             self.destination = self.target.worldPosition
             dist = self.calcDistance(x, y, self.destination[0], self.destination[1])
             if dist > self.field:
                 self.move(x, y)
+                self.stand()
             elif self.att_chrono != self.att_spd:
                 self.att_chrono += 1
             elif self.att_chrono == self.att_spd:
@@ -219,11 +242,9 @@ class Shocker(Unit):
                 pew = Zapper(scene.addObject('Zapper', self))
                 pew.owner = self
                 bge.c.game.bullets.append(pew)
-                pew.target = self.target
-                pew.traject_init()
+                pew.traject_init(self.owner, self.target, self)
                 self.att_chrono = 0
+                self.stand()
+
         else:
             self.state = 1
-
-    def harvest(self, x, y):
-        pass

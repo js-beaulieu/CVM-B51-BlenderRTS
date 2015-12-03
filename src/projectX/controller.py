@@ -4,8 +4,8 @@ from mouse import *
 from keyboard import *
 from game import *
 from building import *
+from unit import *
 from display import *
-from test import *
 
 scene = bge.logic.getCurrentScene()
 
@@ -17,6 +17,7 @@ class Controller():
         self.frame = 0
         self.mouse = Mouse(self)
         self.keyboard = Keyboard(self)
+        self.display_update = False
         self.ui_panel = 0
         self.button_clicked = 0
 
@@ -42,7 +43,6 @@ def control_update(cont):
 
     if bge.c.button_clicked > 0:
         bge.c.button_clicked -= 1
-    
 
     if bge.logic.mouse.events:
         bge.c.mouse.select(cont)
