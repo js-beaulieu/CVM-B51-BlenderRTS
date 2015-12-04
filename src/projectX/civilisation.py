@@ -11,7 +11,8 @@ class Civilisation():
         self.buildings = {
             'headquarters': [],
             'barracks': [],
-            'towers': []
+            'towers': [],
+            'houses': []
         }
         self.units = {
             'harvesters': [],
@@ -19,9 +20,9 @@ class Civilisation():
             'shockers': []
         }
         self.placing_build = None
-        self.gold = 11250
-        self.wood = 11100
-        self.crystal = 15
+        self.gold = 1250
+        self.wood = 1100
+        self.crystal = 5
         self.computer = False
         self.play_stage = 0
         self.atk_count = 0
@@ -237,6 +238,23 @@ class Civilisation():
             new_building.build_init(self, self.selected_unit)
             new_building.state = state
             self.buildings["towers"].append(new_building)
+            self.placing_build = new_building
+            return True
+        else:
+            return False
+
+    def create_house(self, state):
+        if self.calcPrice(100, 180, 0):
+            num = random.randint(0, 1)
+            if num == 0:
+                skin = "House"
+            if num == 1:
+                skin = "House2"
+            scene = bge.logic.getCurrentScene()
+            new_building = House(scene.addObject(skin, scene.objects['SpawnB']), num)
+            new_building.build_init(self, self.selected_unit)
+            new_building.state = state
+            self.buildings["houses"].append(new_building)
             self.placing_build = new_building
             return True
         else:

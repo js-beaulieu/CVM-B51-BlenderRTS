@@ -1,5 +1,6 @@
 import bge
 from unit import *
+import random
 
 
 class Building(bge.types.KX_GameObject):
@@ -27,11 +28,13 @@ class Building(bge.types.KX_GameObject):
         if self.state == 1:  # placing
             cont = bge.logic.getCurrentController()
             mouse_pos = cont.sensors["Mouse_Pos"]
-            self.worldPosition.x = mouse_pos.hitPosition[0] 
-            self.worldPosition.y = mouse_pos.hitPosition[1]+1
+            self.worldPosition.x = mouse_pos.hitPosition[0]
+            self.worldPosition.y = mouse_pos.hitPosition[1]
         elif self.state == 2:  # construction
             if self.hp != self.max_hp:
                 self.hp += 1
+            else:
+                self.state = 4
         elif self.state == 3:  # create unit
             for obj in self.creating_unit:
                 pass  # increment chrono for creating the unit
@@ -205,4 +208,97 @@ class Tower(Building):
         if self in bge.c.game.selected_units:
             bge.c.game.selected_units.remove(self)
         self.owner.buildings['towers'].remove(self)
+        self.endObject()
+
+
+class House(Building):
+
+    def __init__(self, parent, skin):
+        super(House, self).__init__(parent)
+        self.max_hp = 1000
+        self.hp = 1
+        self.id_nb = "House_" + str(bge.c.frame)
+        if skin == 0:
+            self.stage_1 = "H_stage_1"
+            self.stage_2 = "H_stage_2"
+            self.stage_3 = "H_stage_3"
+            self.stage_4 = "H_stage_4"
+            self.stage_5 = "H_stage_5"
+            self.stage_6 = "H_stage_6"
+            self.stage_7 = "H_stage_7"
+            xyz = self.localOrientation.to_euler()
+            xyz[0] = math.radians(90)
+            xyz[2] = math.radians(180)
+            self.localOrientation = xyz.to_matrix()
+        elif skin == 1:
+            self.stage_1 = "H_stage_1b"
+            self.stage_2 = "H_stage_2b"
+            self.stage_3 = "H_stage_3b"
+            self.stage_4 = "H_stage_4b"
+            self.stage_5 = "H_stage_5b"
+            self.stage_6 = "H_stage_6b"
+            self.stage_7 = "H_stage_7b"
+            xyz = self.localOrientation.to_euler()
+            xyz[0] = math.radians(180)
+            self.localOrientation = xyz.to_matrix()
+            
+            xyz = self.children[self.stage_7].localOrientation.to_euler()
+            xyz[0] = math.radians(90)
+            self.children[self.stage_7].localOrientation = xyz.to_matrix()
+            xyz = self.children[self.stage_6].localOrientation.to_euler()
+            xyz[0] = math.radians(90)
+            self.children[self.stage_6].localOrientation = xyz.to_matrix()
+            xyz = self.children[self.stage_5].localOrientation.to_euler()
+            xyz[0] = math.radians(90)
+            self.children[self.stage_5].localOrientation = xyz.to_matrix()
+            xyz = self.children[self.stage_4].localOrientation.to_euler()
+            xyz[0] = math.radians(90)
+            self.children[self.stage_4].localOrientation = xyz.to_matrix()
+            xyz = self.children[self.stage_3].localOrientation.to_euler()
+            xyz[0] = math.radians(90)
+            self.children[self.stage_3].localOrientation = xyz.to_matrix()
+            xyz = self.children[self.stage_2].localOrientation.to_euler()
+            xyz[0] = math.radians(90)
+            self.children[self.stage_2].localOrientation = xyz.to_matrix()
+            xyz = self.children[self.stage_1].localOrientation.to_euler()
+            xyz[0] = math.radians(90)
+            self.children[self.stage_1].localOrientation = xyz.to_matrix()
+
+
+            
+
+    def construct(self):
+        if self.hp < self.max_hp / 7 * 6.8:
+            self.children[self.stage_7].visible = False
+        else:
+            self.children[self.stage_7].visible = True
+        if self.hp < self.max_hp / 7 * 6:
+            self.children[self.stage_6].visible = False
+        else:
+            self.children[self.stage_6].visible = True
+        if self.hp < self.max_hp / 7 * 5:
+            self.children[self.stage_5].visible = False
+        else:
+            self.children[self.stage_5].visible = True
+        if self.hp < self.max_hp / 7 * 4:
+            self.children[self.stage_4].visible = False
+        else:
+            self.children[self.stage_4].visible = True
+        if self.hp < self.max_hp / 7 * 3:
+            self.children[self.stage_3].visible = False
+        else:
+            self.children[self.stage_3].visible = True
+        if self.hp < self.max_hp / 7 * 2:
+            self.children[self.stage_2].visible = False
+        else:
+            self.children[self.stage_2].visible = True
+        if self.hp < self.max_hp / 7:
+            self.children[self.stage_1].visible = False
+        else:
+            self.children[self.stage_1].visible = True
+
+    def die(self):
+        if self in bge.c.game.selected_units:
+            bge.c.game.selected_units.remove(self)
+        self.owner.buildings['houses'].remove(self)
         self.endObject()

@@ -146,6 +146,9 @@ class scavengerDisplay(bgui.bge_utils.Layout):
         self.btn_tower = bgui.FrameButton(self.scavFrame, text='tower', size=[0.2, 0.15], pos=[0.475, 0.8])
         self.btn_tower.label.pt_size = 16
         self.btn_tower.on_click = self.tower
+        self.btn_house = bgui.FrameButton(self.scavFrame, text='house', size=[0.2, 0.15], pos=[0.25, 0.6])
+        self.btn_house.label.pt_size = 16
+        self.btn_house.on_click = self.house
 
     def update(self):
         pass
@@ -162,6 +165,11 @@ class scavengerDisplay(bgui.bge_utils.Layout):
 
     def tower(self, widget):
         bge.c.game.selected_units[0].owner.create_tower(1)
+        bge.c.button_clicked = 10
+        bge.c.ui_panel = 2
+
+    def house(self, widget):
+        bge.c.game.selected_units[0].owner.create_house(1)
         bge.c.button_clicked = 10
         bge.c.ui_panel = 2
 

@@ -80,6 +80,7 @@ class Mouse(object):
     ############################################################################
     def left_click(self, scene, mouse_pos):
         """Handling left click actions."""
+        jin = mouse_pos.hitObject
 
         # Local helper functions
         def draw_square():
@@ -89,7 +90,6 @@ class Mouse(object):
             render.drawLine((self.x2, self.y2, z), (self.x1, self.y2, z), (1, 0, 0))
 
         def unit_select(scene, mouse_pos):
-            jin = mouse_pos.hitObject
             for civ in bge.c.game.civilisations:
                 for i in civ.units:
                     for obj in civ.units[i]:
@@ -142,20 +142,17 @@ class Mouse(object):
 
         # Handling the click
         if self.key["LeftClick"] == logic.KX_INPUT_JUST_ACTIVATED:
-            jin = mouse_pos.hitObject
-            if isinstance(jin, Building):
-                """construct building"""
-                if jin.owner.placing_build and bge.c.button_clicked == 0:
-                    print("ok")
-                    posX = jin.worldPosition[0] - 2
-                    posY = jin.worldPosition[1] - 2
-                    posZ = jin.worldPosition[2]
-                    for obj in bge.c.game.selected_units:
-                        if isinstance(obj, Harvester):
-                            obj.destination = [posX, posY, posZ]
-                            obj.state = 5
-                    jin.state = 2
-                    jin.owner.placing_build = None
+            civil = self.parent.game.civilisations[0]
+            if civil.placing_build and bge.c.button_clicked == 0:
+                posX = civil.placing_build.worldPosition[0] + 2
+                posY = civil.placing_build.worldPosition[1]
+                posZ = civil.placing_build.worldPosition[2]
+                for obj in bge.c.game.selected_units:
+                    if isinstance(obj, Harvester):
+                        obj.destination = [posX, posY, posZ]
+                        obj.state = 5
+                civil.placing_build.state = 2
+                civil.placing_build = None
 
             if not isinstance(jin, Building) and not isinstance(jin, Unit) and bge.c.button_clicked == 0:
                 """remove ui"""
